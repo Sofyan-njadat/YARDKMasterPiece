@@ -1,0 +1,147 @@
+﻿@model List<YARDK.Models.Order>
+@{
+    ViewData["Title"] = "My Orders";
+    Layout = "_Layout";
+}
+
+
+<!-- My Orders Section -->
+<div class="container my-5">
+	<div class="row justify-content-center">
+		<div class="col-lg-10">
+			<div class="profile-section p-4">
+				<!-- Tabs Start -->
+				<div class="user-tabs">
+					<a asp-controller="User" asp-action="Profile" class="tab-button">Profile</a>
+					<a asp-controller="User" asp-action="MyAds" class="tab-button">My ADS</a>
+					<a asp-controller="User" asp-action="MyOrders" class="tab-button active">My Orders</a>
+					<a asp-controller="User" asp-action="PaymentMethod" class="tab-button">Payment Method</a>
+				</div>
+				<!-- Tabs End -->
+
+                <div class="container py-5">
+                    <h2 class="mb-4">My Orders</h2>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="card shadow-sm">
+                            <div class="table-responsive">
+                                <table class="table table-striped mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Order #</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Total</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var order in Model)
+                                        {
+                                            <tr>
+                                                <td>@order.OrderNumber</td>
+                                                <td>@order.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                                                <td>
+                                                    @if (order.Status == "Pending")
+                                                    {
+                                                        <span class="badge bg-warning">@order.Status</span>
+                                                    }
+                                                    else if (order.Status == "Completed")
+                                                    {
+                                                        <span class="badge bg-success">@order.Status</span>
+                                                    }
+                                                    else if (order.Status == "Cancelled")
+                                                    {
+                                                        <span class="badge bg-danger">@order.Status</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">@order.Status</span>
+                                                    }
+                                                </td>
+                                                <td>JD @order.TotalAmount.ToString("F2")</td>
+                                                <td>
+                                                    <a href="@Url.Action("OrderDetails", "User", new { id = order.Id })" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-eye me-1"></i> View Details
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center py-5">
+                            <i class="fas fa-shopping-bag mb-3" style="font-size: 3rem;"></i>
+                            <h4>You haven't placed any orders yet</h4>
+                            <p>Browse our categories and place your first order!</p>
+                            <a href="@Url.Action("Categories", "Product")" class="btn btn-primary mt-3">
+                                <i class="fas fa-shopping-cart me-2"></i>Shop Now
+                            </a>
+                        </div>
+                    }
+                </div>
+
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	/*** Taps Start ***/
+	.user-tabs {
+		display: flex;
+		margin-bottom: 15px;
+		border-bottom: 1px solid #ddd;
+		overflow-x: auto;
+	}
+
+	.tab-button {
+		font-weight: 600;
+		padding: 10px 20px;
+		background-color: #f8f8f8;
+		border: 1px solid #ddd;
+		border-bottom: none;
+		margin-right: 5px;
+		text-decoration: none;
+		color: #333;
+		border-radius: 5px 5px 0 0;
+		white-space: nowrap;
+		transition: all 0.3s ease;
+	}
+
+		.tab-button:hover {
+			background-color: #e9f0ff;
+			color: #0056b3;
+		}
+
+	.tab-button.active {
+		background-color: #007bff;
+		color: white;
+		border-color: #007bff;
+		box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+	}
+	/*** Taps End ***/
+</style>
+
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			const currentUrl = window.location.pathname;
+			$('.user-tabs a').each(function() {
+				const href = $(this).attr('href');
+				if (href && currentUrl.includes(href.split('/').pop())) {
+					$('.user-tabs a').removeClass('active');
+					$(this).addClass('active');
+				}
+			});
+		});
+	</script>
+}
+ 

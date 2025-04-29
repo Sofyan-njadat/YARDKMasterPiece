@@ -1,0 +1,144 @@
+@model YARDK.Models.CheckoutViewModel
+@{
+	ViewData["Title"] = "Checkout";
+    Layout = "_Layout";
+}
+
+    <!-- Check Out Start -->
+    <div class="container py-5">
+        <div class="row g-5">
+        <form asp-controller="Product" asp-action="ProcessOrder" method="post">
+            <div class="row">
+            <!-- Left Column - Checkout Form -->
+            <div class="col-lg-7">
+                <h2 class="mb-4">Checkout Details</h2>
+
+                <!-- Personal Information -->
+                <div class="payment-card mb-4">
+                    <h4 class="mb-4"><i class="fas fa-user me-2"></i>Personal Information</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" asp-for="FirstName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" asp-for="LastName" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email</label>
+                                <input type="email" class="form-control" asp-for="Email" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" asp-for="Phone" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Information -->
+                    <div class="payment-card mb-4">
+                        <h4 class="mb-4"><i class="fas fa-shipping-fast me-2"></i>Shipping Address</h4>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Address</label>
+                                <input type="text" class="form-control" asp-for="Address" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" asp-for="City" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" asp-for="PostalCode" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Details -->
+                <div class="payment-card">
+                    <h4 class="mb-4"><i class="fas fa-credit-card me-2"></i>Payment Details</h4>
+                    <div class="row g-3">
+                            <!-- نخفي حقل الاختيار ونضع قيمة افتراضية -->
+                            <input type="hidden" asp-for="PaymentMethod" value="Credit Card" />
+                            
+                        <div class="col-12">
+                            <label class="form-label">Card Number</label>
+                            <div class="input-group">
+                                    <input type="text" class="form-control" asp-for="CardNumber" placeholder="0000 0000 0000 0000" required>
+                                <span class="input-group-text"><i class="fab fa-cc-visa"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Expiration Date</label>
+                                <input type="month" class="form-control" asp-for="ExpiryDate" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">CVV</label>
+                                <input type="number" class="form-control" asp-for="CVV" placeholder="123" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="col-lg-5">
+                <div class="order-summary p-4 sticky-top">
+                    <h3 class="checkoutstyle">Order Summary</h3>
+
+                    <!-- Cart Items -->
+                    <div class="mb-4">
+                            @foreach (var item in Model.CartItems)
+                            {
+                        <div class="d-flex mb-3">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.ProductName" class="img-fluid rounded" style="width: 60px; height: 60px;">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/img/no-image.jpg" alt="Product" class="img-fluid rounded" style="width: 60px; height: 60px;">
+                                    }
+                            <div class="ms-3">
+                                        <h6 class="checkoutstyle">@item.ProductName</h6>
+                                        <small>Qty: @item.Quantity</small>
+                                        <p class="priceStyle">JD @item.Price</p>
+                            </div>
+                        </div>
+                            }
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="border-top pt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                                <span>JD @Model.Subtotal.ToString("F2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                                <span>JD @Model.Shipping.ToString("F2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total:</span>
+                                <span class="priceStyle">JD @((Model.Subtotal + Model.Shipping).ToString("F2"))</span>
+                        </div>
+                    </div>
+
+                    <!-- Checkout Button -->
+                        <button type="submit" class="btn btn-primary w-100 mt-4 py-2 rounded-pill"
+                            style="background-color: #32A12E; border: none;">
+                        Complete Purchase
+                    </button>
+                </div>
+            </div>
+            </div>
+        </form>
+        </div>
+    </div>
+    <!-- Check Out End -->
+
+@section Scripts {
+    <!-- تم إزالة السكريبت الذي يتحكم بإظهار وإخفاء حقول البطاقة لأننا لا نحتاجه بعد الآن -->
+} 

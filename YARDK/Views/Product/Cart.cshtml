@@ -1,0 +1,228 @@
+﻿@model List<YARDK.Models.CartItemViewModel>
+@{
+	ViewData["Title"] = "Cart";
+	Layout = "_Layout";
+}
+
+    <!-- Cart Section Start -->
+    <div class="container-fluid py-5">
+        <div class="container">
+		@if (TempData["SuccessMessage"] != null)
+		{
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+				<i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		}
+		
+		@if (TempData["QuantityWarning"] != null)
+		{
+			<div class="alert alert-warning alert-dismissible fade show" role="alert">
+				<i class="fas fa-exclamation-triangle me-2"></i> @TempData["QuantityWarning"]
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		}
+
+		@if (Model != null && Model.Any())
+		{
+            <div class="row g-5">
+                <!-- Cart Items -->
+                <div class="col-lg-8">
+					<div class="section-title">
+						<h2>Your Cart Items</h2>
+						<span class="position-relative">Cart Items</span>
+					</div>
+					<div class="cart-items mt-4">
+					@{
+						decimal subtotal = 0;
+						foreach (var item in Model)
+						{
+							subtotal += item.Price * item.Quantity;
+							<div class="cart-item p-4 rounded-3 mb-4 shadow-sm border border-light" id="item-@item.ProductId">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+										@if (!string.IsNullOrEmpty(item.ImageUrl))
+										{
+											<img src="@item.ImageUrl" alt="@item.ProductName" class="img-fluid rounded">
+										}
+										else
+										{
+											<img src="~/img/no-image.jpg" alt="Product" class="img-fluid rounded">
+										}
+                            </div>
+                            <div class="col-md-5">
+										<h5 class="mb-2">@item.ProductName</h5>
+										<span class="badge bg-light text-dark">Product ID: @item.ProductId</span>
+                            </div>
+                            <div class="col-md-3">
+										<div class="quantity-control d-flex align-items-center border rounded">
+											<button class="btn btn-sm px-3" onclick="updateQuantity(@item.ProductId, -1)">
+												<i class="fas fa-minus"></i>
+                                    </button>
+											<input type="number" id="qty-@item.ProductId" class="form-control form-control-sm border-0 text-center shadow-none" 
+												value="@item.Quantity" min="1" max="100" data-product-id="@item.ProductId" onchange="updateQuantityFromInput(this)">
+											<button class="btn btn-sm px-3" onclick="updateQuantity(@item.ProductId, 1)">
+												<i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-end">
+										<h5 class="text-primary mb-2">JD @item.Price</h5>
+										<a class="btn btn-sm btn-outline-danger" 
+										   asp-controller="Product" asp-action="RemoveFromCart" asp-route-id="@item.ProductId">
+                                    <i class="fas fa-trash me-1"></i>Remove
+										</a>
+                            </div>
+                        </div>
+                    </div>
+						}
+					}
+                            </div>
+					<div class="d-flex justify-content-between mt-4">
+						<a asp-controller="Product" asp-action="Categories" class="btn btn-outline-primary">
+							<i class="fas fa-arrow-left me-2"></i>Continue Shopping
+						</a>
+						<button type="button" class="btn btn-outline-danger" onclick="clearCart()">
+							<i class="fas fa-trash me-2"></i>Clear Cart
+                                </button>
+                    </div>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="col-lg-4">
+					<div class="section-title">
+						<h2>Summary</h2>
+						<span class="position-relative">Order Summary</span>
+                        </div>
+					<div class="cart-summary p-4 rounded-3 shadow-sm border border-light mt-4">
+						<div class="d-flex justify-content-between mb-3">
+							<span class="text-muted">Subtotal:</span>
+							<span id="subtotal" class="fw-bold">JD @subtotal.ToString("F2")</span>
+                        </div>
+
+						<div class="d-flex justify-content-between mb-3">
+							<span class="text-muted">Shipping:</span>
+							<span>JD @(Math.Round(subtotal * 0.05m, 2).ToString("F2"))</span>
+                        </div>
+
+                        <hr class="my-4">
+
+						@{
+							decimal shipping = Math.Round(subtotal * 0.05m, 2);
+							decimal total = subtotal + shipping;
+						}
+
+                        <div class="d-flex justify-content-between mb-4">
+                            <h5>Total:</h5>
+							<h5 class="text-primary" id="total">JD @total.ToString("F2")</h5>
+                        </div>
+
+						<div class="d-grid gap-2">
+							<a asp-controller="Product" asp-action="Checkout" class="btn btn-primary py-3 rounded-pill">
+								<i class="fas fa-lock me-2"></i>Proceed to Checkout
+							</a>
+                        <div class="text-center mt-3">
+								<p class="mb-0"><i class="fas fa-shield-alt text-primary me-2"></i>Secure Checkout</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			</div>
+		}
+		else
+		{
+			<div class="text-center py-5">
+				<div class="empty-cart mb-4">
+					<i class="fas fa-shopping-cart fa-5x text-muted"></i>
+				</div>
+				<h3 class="mb-3">Your cart is empty</h3>
+				<p class="text-muted mb-4">Looks like you haven't added any products to your cart yet.</p>
+				<a asp-controller="Product" asp-action="Categories" class="btn btn-primary py-3 px-5 rounded-pill">
+					<i class="fas fa-shopping-bag me-2"></i>Start Shopping
+				</a>
+			</div>
+		}
+        </div>
+    </div>
+    <!-- Cart Section End -->
+
+@section Scripts {
+	<script>
+		function updateQuantity(productId, change) {
+			const quantityInput = document.getElementById(`qty-${productId}`);
+			let newQuantity = parseInt(quantityInput.value) + change;
+			
+			if (newQuantity < 1) newQuantity = 1;
+			
+			quantityInput.value = newQuantity;
+			
+			// Update cart via AJAX
+			updateCartInServer(productId, newQuantity);
+		}
+		
+		function updateQuantityFromInput(input) {
+			const productId = input.dataset.productId;
+			let quantity = parseInt(input.value);
+			
+			if (isNaN(quantity) || quantity < 1) {
+				quantity = 1;
+				input.value = quantity;
+			}
+			
+			updateCartInServer(productId, quantity);
+		}
+		
+		function updateCartInServer(productId, quantity) {
+			// Show loading spinner
+			showLoader();
+			
+			fetch(`/Product/UpdateCartQuantity?id=${productId}&quantity=${quantity}`, {
+				method: 'POST'
+			})
+			.then(response => {
+				if (response.ok) {
+					// Reload the page to reflect changes
+					window.location.reload();
+				}
+			})
+			.catch(error => {
+				console.error("Error updating cart:", error);
+				hideLoader();
+			});
+		}
+		
+		function clearCart() {
+			if (confirm('Are you sure you want to clear your cart?')) {
+				// Implementation needed in the controller
+				// For now, we can redirect to remove all items one by one
+				window.location.href = '/Product/ClearCart';
+			}
+		}
+		
+		function showLoader() {
+			// Create loader if it doesn't exist
+			if (!document.getElementById('page-loader')) {
+				const loader = document.createElement('div');
+				loader.id = 'page-loader';
+				loader.innerHTML = `
+					<div class="d-flex justify-content-center align-items-center position-fixed w-100 h-100" 
+						 style="top: 0; left: 0; background: rgba(255,255,255,0.7); z-index: 9999;">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+				`;
+				document.body.appendChild(loader);
+			} else {
+				document.getElementById('page-loader').style.display = 'block';
+			}
+		}
+		
+		function hideLoader() {
+			const loader = document.getElementById('page-loader');
+			if (loader) {
+				loader.style.display = 'none';
+			}
+		}
+	</script>
+}

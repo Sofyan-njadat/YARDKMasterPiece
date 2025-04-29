@@ -1,0 +1,60 @@
+@model YARDK.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YARDK - Login</title>
+    <link rel="stylesheet" type="text/css" href="slide navbar style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="~/css/login.css">
+</head>
+
+<body class="body09">
+    <div class="main">
+        <input type="checkbox" id="chk" aria-hidden="true" checked>
+
+        <div class="signup">
+            <form asp-action="Regester" method="get">
+                <label for="chk" aria-hidden="true"><u>Sign Up</u></label>
+                <p style="color:whitesmoke">Don't have an account?</p>
+                <button type="submit">Register Now</button>
+            </form>
+        </div>
+
+        <div class="login">
+            <form asp-action="Login" method="post">
+                <label for="chk" aria-hidden="true">Login</label>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <input asp-for="Email" placeholder="Email" required>
+                <span asp-validation-for="Email" class="text-danger"></span>
+                
+                <input asp-for="Password" placeholder="Password" required>
+                <span asp-validation-for="Password" class="text-danger"></span>
+                
+                <div class="remember-me">
+                    <input asp-for="RememberMe" type="checkbox">
+                    <label asp-for="RememberMe">Remember Me</label>
+                </div>
+                
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <a asp-controller="Home" asp-action="Index" class="home-button"> <i class='fas fa-home'></i> </a>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+
+</html> 

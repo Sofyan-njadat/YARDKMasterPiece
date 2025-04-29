@@ -1,0 +1,174 @@
+﻿@model List<YARDK.Models.ProductViewModel>
+@{
+	ViewData["Title"] = "Scrap & Surpluses";
+	Layout = "_Layout";
+}
+
+
+
+
+<!-- Header Start -->
+<div class="container-fluid bg-breadcrumb">
+    <div class="container text-center py-5" style="max-width: 900px;">
+        <h3 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">
+            Scrap & Surplus</h1>
+            <ol class="breadcrumb justify-content-center text-white mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="index.html" class="text-white">Home</a></li>
+                <li class="breadcrumb-item"><a href="#" class="text-white">Categories</a></li>
+                <li class="breadcrumb-item active text-secondary">Scrap & Surplus</li>
+            </ol>
+    </div>
+</div>
+<!-- Header End -->
+
+
+<!-- Scrap & Surplus Start -->
+<div class="container-fluid service overflow-hidden pt-5">
+    <div class="container py-5">
+        <div class="section-title text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="sub-style">
+                <h5 class="sub-title text-primary px-3">Scrap & Surplus</h5>
+            </div>
+        </div>
+
+
+        <div class="row g-4">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var product in Model)
+                {
+                    <div class="col-lg-4 col-md-6 col-sm-12 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="service-item">
+                            <div class="service-inner">
+                                <div class="service-img">
+                                    <img src="@product.ImageUrl" class="img-fluid w-100 rounded" 
+                                        alt="@product.ProductName" style="height: 250px; object-fit: cover;">
+                                </div>
+                                <div class="service-title">
+                                    <div class="service-title-name">
+                                        <div class="bg-primary text-center rounded p-3 mx-5 mb-4">
+                                            <a href="#" class="h4 text-white mb-0">@product.ProductName</a>
+                                        </div>
+                                    </div>
+                                    <div class="service-content pb-4">
+                                        <a href="#">
+                                            <h4 class="text-white mb-4 py-3">@product.ProductName</h4>
+                                        </a>
+                                        <div class="px-4">
+                                            <p class="mb-4">Quantity: @product.Quantity <br> Price: @product.Price JD</p>
+                                            <div class="d-flex justify-content-start">
+                                                <a class="btn btn-primary border-secondary rounded-pill text-white py-1 px-2 me-2"
+                                                   asp-controller="Product" asp-action="ProductDetails" asp-route-id="@product.Id">
+                                                    <i class="fas fa-info-circle me-2"></i> Details
+                                                </a>
+                                                <a class="btn btn-primary border-secondary rounded-pill text-white py-1 px-2 me-2"
+                                                   asp-controller="Product" asp-action="AddToCart" asp-route-id="@product.Id">
+                                                    <i class="fas fa-cart-plus me-2"></i> Add to Cart
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center">
+                    <p>No scrap & surplus products available at the moment.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+<!-- Scrap & Surplus End -->
+<!-- Pagination Start -->
+@if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
+{
+    <div class="container-fluid py-5">
+        <div class="container">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    @if (ViewBag.HasPreviousPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-action="@ViewBag.CategoryName" asp-route-pageNumber="@(ViewBag.PageNumber - 1)" aria-label="Previous"
+                               style="color: #32A12E; background-color: #003A66;">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link" style="color: #6c757d; background-color: #e9ecef;">&laquo;</span>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="@ViewBag.CategoryName" asp-route-pageNumber="@i"
+                               style="@(i == ViewBag.PageNumber ? "color: white; background-color: #32A12E; border-color: #32A12E;" : "color: #32A12E; background-color: #003A66;")">@i</a>
+                        </li>
+                    }
+
+                    @if (ViewBag.HasNextPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-action="@ViewBag.CategoryName" asp-route-pageNumber="@(ViewBag.PageNumber + 1)" aria-label="Next"
+                               style="color: #32A12E; background-color: #003A66;">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link" style="color: #6c757d; background-color: #e9ecef;">&raquo;</span>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+}
+<!-- Pagination End -->
+
+<style>
+    .service-item {
+        display: flex; /* Enable flexbox for the outer container */
+        flex-direction: column; /* Stack children vertically */
+        height: 100%; /* Make item take full height of its grid container */
+         min-height: 550px; /* Or adjust as needed based on your content */
+    }
+
+    .service-inner {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; /* Allow inner container to grow and fill the item's height */
+    }
+
+    .service-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; /* Allow content to grow and push buttons down */
+        justify-content: space-between; /* Push buttons to the bottom */
+    }
+
+     .service-content .px-4 {
+         flex-grow: 1; /* Allow the text part to take available space */
+     }
+
+    /* Optional: Limit description text lines */
+     .service-content p span { /* Assuming description is in a span */
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* Limit to 3 lines */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>

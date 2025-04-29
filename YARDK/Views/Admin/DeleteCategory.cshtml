@@ -1,0 +1,81 @@
+@model YARDK.Models.Category
+@{
+    ViewData["Title"] = "Delete Category";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid bg-breadcrumb">
+    <div class="container text-center py-5" style="max-width: 900px;">
+        <h1 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Delete Category</h1>
+        <ol class="breadcrumb justify-content-center text-white mb-0 wow fadeInDown" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard" class="text-white">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Categories" class="text-white">Categories</a></li>
+            <li class="breadcrumb-item active text-secondary">Delete</li>
+        </ol>
+    </div>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="card-title mb-0">Delete Category</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Warning:</strong> Are you sure you want to delete this category? This action cannot be undone.
+                        </div>
+                        
+                        <div class="row mb-4 mt-4">
+                            <div class="col-md-5">
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <img src="@Model.ImageUrl" alt="@Model.CategoryName" class="img-thumbnail w-100" style="max-height: 200px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="text-center p-5 bg-light">
+                                        <i class="fas fa-image text-muted fa-3x"></i>
+                                        <p class="text-muted mt-2">No image available</p>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-7">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Category Name</label>
+                                    <p>@Model.CategoryName</p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Description</label>
+                                    <p>@Model.Description</p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">ID</label>
+                                    <p>@Model.Id</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <form asp-action="DeleteCategory" method="post">
+                            <input type="hidden" asp-for="Id" />
+                            <div class="d-flex justify-content-between mt-4">
+                                <a asp-action="Categories" class="btn btn-secondary rounded-pill px-4">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Categories
+                                </a>
+                                <button type="submit" class="btn btn-danger rounded-pill px-4">
+                                    <i class="fas fa-trash me-2"></i>Delete Permanently
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

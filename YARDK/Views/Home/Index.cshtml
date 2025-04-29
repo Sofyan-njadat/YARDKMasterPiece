@@ -1,0 +1,442 @@
+﻿@model List<YARDK.Models.Category>
+@{
+    ViewData["Title"] = "YARDK-Home";
+}
+
+<!-- Modal Search Start -->
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content rounded-0">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex align-items-center">
+                <div class="input-group w-75 mx-auto d-flex">
+                    <input type="search" class="form-control p-3" placeholder="Search Here ..."
+                           aria-describedby="search-icon-1">
+                    <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Search End -->
+
+
+<!-- Carousel Start -->
+<div class="carousel-header">
+    <div id="carouselId" class="carousel slide" data-bs-ride="carousel">
+        <ol class="carousel-indicators">
+            <li data-bs-target="#carouselId" data-bs-slide-to="0" class="active"></li>
+            <li data-bs-target="#carouselId" data-bs-slide-to="1"></li>
+        </ol>
+        <div class="carousel-inner" role="listbox">
+            <div class="carousel-item active">
+                <img src="img/hero000.jpg" class="img-fluid" alt="Image">
+                <div class="carousel-caption">
+                    <div class="text-center p-4 cen" style="max-width: 900px;">
+                        <h4 class="text-white text-uppercase fw-bold mb-3 mb-md-4 wow fadeInUp"
+                            data-wow-delay="0.1s">
+                            Solution For All Type Of Scrap
+                        </h4>
+                        <h1 class="display-1 text-capitalize text-white mb-3 mb-md-4 wow fadeInUp"
+                            data-wow-delay="0.3s">
+                            Transforming Surplus into Success
+                        </h1>
+                        <p class="text-white mb-4 mb-md-5 fs-5 wow fadeInUp" data-wow-delay="0.5s">
+                            We give surplus
+                            and scrap a second chance, transforming
+                            unused items into valuable resources while supporting businesses and sustainability
+                        </p>
+                        <a class="btn btn-primary border-secondary rounded-pill text-white py-3 px-5 wow fadeInUp"
+                           data-wow-delay="0.7s" asp-action="About" >More Details</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="~/img/hero000111.jpg" class="img-fluid sof" alt="Image">
+                <div class="carousel-caption">
+                    <div class="text-center p-4 cen" style="max-width: 900px;">
+                        <h5 class="text-white text-uppercase fw-bold mb-3 mb-md-4 wow fadeInUp"
+                            data-wow-delay="0.1s">
+                            Solution For All Type Of Scrap
+                        </h5>
+                        <h1 class="display-1 text-capitalize text-white mb-3 mb-md-4 wow fadeInUp"
+                            data-wow-delay="0.3s">
+                            From Waste to Worth: Redefining Value
+                        </h1>
+                        <p class="text-white mb-4 mb-md-5 fs-5 wow fadeInUp" data-wow-delay="0.5s">
+                            We bring surplus
+                            items, appliances, and unused furniture
+                            back to life, transforming them into valuable opportunities for everyone.
+                        </p>
+                        <a class="btn btn-primary border-secondary rounded-pill text-white py-3 px-5 wow fadeInUp"
+                           data-wow-delay="0.7s" asp-action="About" >More Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselId" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon bg-secondary wow fadeInLeft" data-wow-delay="0.2s"
+                  aria-hidden="false"></span>
+            <span class="visually-hidden-focusable">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselId" data-bs-slide="next">
+            <span class="carousel-control-next-icon bg-secondary wow fadeInRight" data-wow-delay="0.2s"
+                  aria-hidden="false"></span>
+            <span class="visually-hidden-focusable">Next</span>
+        </button>
+    </div>
+</div>
+<!-- Carousel End -->
+
+
+
+<!-- Counter Facts Start -->
+<div class="container-fluid counter-facts py-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-12 col-sm-6 col-md-6 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="counter">
+                    <div class="counter-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <div class="counter-content">
+                        <h3>Total Items Sold</h3>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <span class="counter-value" data-toggle="counter-up">6,000</span>
+                            <h4 class="text-secondary mb-0" style="font-weight: 600; font-size: 25px;">+</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 col-xl-3 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="counter">
+                    <div class="counter-icon">
+                        <i class="fas fa-warehouse"></i>
+                    </div>
+                    <div class="counter-content">
+                        <h3>Partnered Warehouses</h3>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <span class="counter-value" data-toggle="counter-up">65</span>
+                            <h4 class="text-secondary mb-0" style="font-weight: 600; font-size: 25px;">+</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 col-xl-3 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="counter">
+                    <div class="counter-icon">
+                        <i class="fas fa-recycle"></i>
+                    </div>
+                    <div class="counter-content">
+                        <h3>Recycled Materials</h3>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <span class="counter-value" data-toggle="counter-up">9,500</span>
+                            <h4 class="text-secondary mb-0" style="font-weight: 600; font-size: 25px;">Kg</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
+                <div class="counter">
+                    <div class="counter-icon">
+                        <i class="fas fa-thumbs-up"></i>
+                    </div>
+                    <div class="counter-content">
+                        <h3>Customer Satisfaction</h3>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <span class="counter-value" data-toggle="counter-up">97</span>
+                            <h4 class="text-secondary mb-0" style="font-weight: 600; font-size: 25px;">%</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Counter Facts End -->
+
+
+<!-- Services Start -->
+<div class="container-fluid service overflow-hidden pt-5">
+    <div class="container py-5">
+        <div class="section-title text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="sub-style">
+                <h5 class="sub-title text-primary px-3">Our Categories</h5>
+            </div>
+            <h1 class="display-5 mb-4">Connecting Traders with Surplus and Scrap</h1>
+        </div>
+        <div class="row g-4">
+            @if (Model != null && Model.Any())
+            {
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var category = Model[i];
+                    var actionName = category.CategoryName?.Replace(" & ", "_").Replace(" ", "_") ?? "Index";
+                    var delay = (i % 3) * 0.2 + 0.1; // تأثيرات مختلفة لكل فئة (0.1, 0.3, 0.5)
+                    
+                    <div class="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="@delay.ToString("0.0")s">
+                <div class="service-item">
+                    <div class="service-inner">
+                        <div class="service-img">
+                                    @if (!string.IsNullOrEmpty(category.ImageUrl))
+                                    {
+                                        if (category.ImageUrl.StartsWith("~/"))
+                                        {
+                                            <img src="@Url.Content(category.ImageUrl)" class="img-fluid w-100 rounded" alt="@category.CategoryName" style="height: 250px; object-fit: cover;">
+                                        }
+                                        else if (category.ImageUrl.StartsWith("/"))
+                                        {
+                                            <img src="@category.ImageUrl" class="img-fluid w-100 rounded" alt="@category.CategoryName" style="height: 250px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <img src="@category.ImageUrl" class="img-fluid w-100 rounded" alt="@category.CategoryName" style="height: 250px; object-fit: cover;">
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <img src="~/img/about-2.png" class="img-fluid w-100 rounded" alt="@category.CategoryName" style="height: 250px; object-fit: cover;">
+                                    }
+                        </div>
+                        <div class="service-title">
+                            <div class="service-title-name">
+                                <div class="bg-primary text-center rounded p-3 mx-5 mb-4">
+                                            <a href="#" class="h4 text-white mb-0">@category.CategoryName</a>
+                                </div>
+                                        <a class="btn bg-light text-secondary rounded-pill py-3 px-5 mb-4" 
+                                           asp-controller="Product" asp-action="@actionName">More Details</a>
+                            </div>
+                            <div class="service-content pb-4">
+                                        <a asp-controller="Product" asp-action="@actionName">
+                                            <h4 class="text-white mb-4 py-3">@category.CategoryName</h4>
+                                </a>
+                                <div class="px-4">
+                                            @if (!string.IsNullOrEmpty(category.Description))
+                                            {
+                                                <p class="mb-4">@category.Description</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="mb-4">Explore our wide range of products in this category.</p>
+                                            }
+                                    <a class="btn btn-primary border-secondary rounded-pill text-white py-3 px-5"
+                                               asp-controller="Product" asp-action="@actionName">View All</a>
+                </div>
+            </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center">
+                    <p class="text-muted fs-5">No categories available at the moment. Please check back later.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<!-- Services End -->
+
+
+<!-- Features Start -->
+<div class="container-fluid features overflow-hidden py-5">
+    <div class="container">
+        <div class="section-title text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="sub-style">
+                <h5 class="sub-title text-primary px-3">Why Choose Us</h5>
+            </div>
+            <h1 class="display-5 mb-4">Tailor-Made Solutions for Surplus, Scrap, and Used Equipment</h1>
+        </div>
+        <div class="row g-4 justify-content-center text-center">
+            <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="feature-item text-center p-4">
+                    <div class="feature-icon p-3 mb-4">
+                        <i class="fas fa-hand-holding-usd fa-4x text-primary"></i>
+                    </div>
+                    <div class="feature-content d-flex flex-column">
+                        <h5 class="mb-3">Cost-Effective</h5>
+                        <p class="mb-3">
+                            Find great deals on surplus goods, scrap materials, and equipment, all at
+                            competitive prices. Save money and reduce waste.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="feature-item text-center p-4">
+                    <div class="feature-icon p-3 mb-4">
+                        <i class="fas fa-users-cog fa-4x text-primary"></i>
+                    </div>
+                    <div class="feature-content d-flex flex-column">
+                        <h5 class="mb-3">Trusted Network</h5>
+                        <p class="mb-3">
+                            We ensure that all buyers and sellers on our platform are trustworthy.
+                            Connect with reliable traders who can meet your needs.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="feature-item text-center p-4">
+                    <div class="feature-icon p-3 mb-4">
+                        <i class="fas fa-clock fa-4x text-primary"></i>
+                    </div>
+                    <div class="feature-content d-flex flex-column">
+                        <h5 class="mb-3">Fast and Easy Transactions</h5>
+                        <p class="mb-3">
+                            We makes it easy to find, communicate, and buy directly from sellers with no
+                            hassle.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
+                <div class="feature-item text-center p-4">
+                    <div class="feature-icon p-3 mb-4">
+                        <i class="fas fa-comments fa-4x text-primary"></i>
+                    </div>
+                    <div class="feature-content d-flex flex-column">
+                        <h5 class="mb-3">Direct Communication</h5>
+                        <p class="mb-3">
+                            We connect you easily with sellers and buyers directly. No intermediaries,
+                            just a smooth and efficient communication channel.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Features End -->
+
+
+<!-- Countries We Offer Start -->
+<div class="container-fluid country overflow-hidden py-5">
+    <div class="container">
+        <div class="section-title text-center wow fadeInUp" data-wow-delay="0.1s" style="margin-bottom: 70px;">
+            <div class="sub-style">
+                <h5 class="sub-title text-primary px-3">COUNTRIES WE SERVE</h5>
+            </div>
+            <h1 class="display-5 mb-4">We are in four countries in the Middle East</h1>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-lg-6 col-xl-3 mb-5 mb-xl-0 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="country-item">
+                    <div class="rounded overflow-hidden">
+                        <img src="img/amman.png" class="img-fluid w-100 rounded" alt="Image">
+                    </div>
+                    <div class="country-flag">
+                        <img src="img/jordan.png" class="img-fluid rounded-circle" alt="Image">
+                    </div>
+                    <div class="country-name">
+                        <a href="#" class="text-white fs-4">Jordan</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-3 mb-5 mb-xl-0 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="country-item">
+                    <div class="rounded overflow-hidden">
+                        <img src="img/furat01.jpg" class="img-fluid w-100 rounded" alt="Image">
+                    </div>
+                    <div class="country-flag">
+                        <img src="img/iraq.png" class="img-fluid rounded-circle" alt="Image">
+                    </div>
+                    <div class="country-name">
+                        <a href="#" class="text-white fs-4">Iraq</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-3 mb-5 mb-xl-0 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="country-item">
+                    <div class="rounded overflow-hidden">
+                        <img src="img/syria-demascus.jpg" class="img-fluid w-100 rounded" alt="Image">
+                    </div>
+                    <div class="country-flag">
+                        <img src="img/syria.png" class="img-fluid rounded-circle" alt="Image">
+                    </div>
+                    <div class="country-name">
+                        <a href="#" class="text-white fs-4">Syria</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-3 mb-5 mb-xl-0 wow fadeInUp" data-wow-delay="0.7s">
+                <div class="country-item">
+                    <div class="rounded overflow-hidden">
+                        <img src="img/lebanon-sea.jpg" class="img-fluid w-100 rounded" alt="Image">
+                    </div>
+                    <div class="country-flag">
+                        <img src="img/lebanon.png" class="img-fluid rounded-circle" alt="Image">
+                    </div>
+                    <div class="country-name">
+                        <a href="#" class="text-white fs-4">Lebanon</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <a class="btn btn-primary border-secondary rounded-pill py-3 px-5 wow fadeInUp"
+                   data-wow-delay="0.1s" asp-action="Contact">Contact Us</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Countries We Offer End -->
+
+
+<!-- Contact Start -->
+<div class="container-fluid contact overflow-hidden pb-5">
+    <div class="container py-5">
+        <div class="office pt-5">
+            <div class="section-title text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="sub-style">
+                    <h5 class="sub-title text-primary px-3">Our Offices</h5>
+                </div>
+                <h1 class="display-5 mb-4">Explore Our Offices</h1>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="office-item p-4">
+                        <div class="office-img mb-4">
+                            <img src="img/ammanJo.jpg" class="img-fluid w-100 rounded" alt="">
+                        </div>
+                        <div class="office-content d-flex flex-column">
+                            <h4 class="mb-2">Amman - Jordan</h4>
+                            <a href="" class="text-secondary fs-5 mb-2">+962 797 999-777</a>
+                            <p class="mb-0">Mecca St, Amman</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="office-item p-4">
+                        <div class="office-img mb-4">
+                            <img src="img/ajloun.jpg" class="img-fluid w-100 rounded" alt="">
+                        </div>
+                        <div class="office-content d-flex flex-column">
+                            <h4 class="mb-2">Ajloun - Jordan</h4>
+                            <a href="" class="text-secondary fs-5 mb-2">+962 779 999-777</a>
+                            <p class="mb-0">AL Qala' St, Ajloun</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="office-item p-4">
+                        <div class="office-img mb-4">
+                            <img src="img/aqaba.jpg" class="img-fluid w-100 rounded" alt="">
+                        </div>
+                        <div class="office-content d-flex flex-column">
+                            <h4 class="mb-2">Aqaba - Jordan</h4>
+                            <a href="" class="text-secondary fs-5 mb-2">+962 776 666-777</a>
+                            <p class="mb-0">Ar-Razi St, Aqaba</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Contact End -->

@@ -1,0 +1,121 @@
+﻿@model YARDK.Models.Product
+@{
+    ViewData["Title"] = "Product Details";
+    Layout = "_Layout";
+}
+
+
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="row g-5">
+                <!-- Left Column - Images -->
+                <div class="col-lg-6">
+                    <div class="row g-4">
+                        <!-- Main Image -->
+                        <div class="col-12">
+                        @if (Model.ProductImages != null && Model.ProductImages.Any())
+                        {
+                            var mainImage = Model.ProductImages.FirstOrDefault(img => img.IsMainImage) ?? Model.ProductImages.FirstOrDefault();
+                            <img src="@mainImage.ImageUrl" alt="@Model.ProductName" class="img-fluid rounded-3 shadow" id="mainImage" style="height: 450px; width: 100%; object-fit: cover;">
+                        }
+                        else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="@Model.ProductName" class="img-fluid rounded-3 shadow" id="mainImage" style="height: 450px; width: 100%; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <img src="~/img/Electrical Appliances/group-of-older-white-refrigerators-sitting-outside-at-a-scrap-yard.jpg"
+                                 alt="Product" class="img-fluid rounded-3 shadow" id="mainImage" style="height: 450px; width: 100%; object-fit: cover;">
+                        }
+                        </div>
+
+                        <!-- Thumbnails -->
+                    <div class="row mt-3">
+                        @if (Model.ProductImages != null && Model.ProductImages.Any())
+                        {
+                            foreach (var image in Model.ProductImages.OrderBy(img => img.DisplayOrder))
+                            {
+                                <div class="col-3 mb-2">
+                                    <img src="@image.ImageUrl" alt="Thumbnail" class="img-fluid rounded-2 cursor-pointer thumbnail" style="height: 100px; width: 100%; object-fit: cover;">
+                                </div>
+                            }
+                        }
+                        else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="col-3">
+                                <img src="@Model.ImageUrl" alt="Thumbnail" class="img-fluid rounded-2 cursor-pointer thumbnail" style="height: 100px; width: 100%; object-fit: cover;">
+                            </div>
+                        }
+                        else
+                        {
+                        <div class="col-3">
+                            <img src="~/img/Electrical Appliances/group-of-older-white-refrigerators-sitting-outside-at-a-scrap-yard.jpg"
+                                 alt="Thumbnail" class="img-fluid rounded-2 cursor-pointer thumbnail" style="height: 100px; width: 100%; object-fit: cover;">
+                        </div>
+                        }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Details -->
+                <div class="col-lg-6 text-white p-5 rounded-3 cdColor" style="background-color: #002f5f;">
+                    <!-- Product Title -->
+                <h1 class="productTitle" style="color: #FE9D01;">@Model.ProductName</h1>
+
+                    <!-- Price -->
+                    <div class="d-flex align-items-center mb-4">
+                    <h3 class="text-white me-3">JD @Model.Price</h3>
+                    @if (Model.Quantity > 0)
+                    {
+                        <span class="badge bg-success">In Stock</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Out of Stock</span>
+                    }
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-5">
+                    <h4 style="color:green">Description</h4>
+
+                        <ul class="specs-list list-unstyled">
+                        <li><strong>Category:</strong> @Model.Category</li>
+                        <li><strong>Quantity:</strong> @Model.Quantity</li>
+                        <li><strong>Seller:</strong> @Model.Seller?.Name</li>
+                        </ul>
+
+                    <p>@Model.Description</p>
+
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3">
+                    <a asp-controller="Product" asp-action="Categories" class="btn btn-warning px-4 py-2 rounded-pill">
+                        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                        </a>
+
+                    <a asp-controller="Product" asp-action="AddToCart" asp-route-id="@Model.Id" class="btn btn-primary px-4 py-2 rounded-pill add-to-cart">
+                        <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </a>
+                </div>
+            </div>
+                        </div>
+                    </div>
+                </div>
+
+@section Scripts {
+    <script>
+        // Script for thumbnail images
+        document.addEventListener('DOMContentLoaded', function() {
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            const mainImage = document.getElementById('mainImage');
+            
+            thumbnails.forEach(thumb => {
+                thumb.addEventListener('click', function() {
+                    mainImage.src = this.src;
+                });
+            });
+        });
+    </script>
+}

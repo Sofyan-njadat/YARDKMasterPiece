@@ -1,0 +1,107 @@
+@model IEnumerable<YARDK.Models.Category>
+@{
+    ViewData["Title"] = "Categories Management";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid bg-breadcrumb">
+    <div class="container text-center py-5" style="max-width: 900px;">
+        <h1 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Categories Management</h1>
+        <ol class="breadcrumb justify-content-center text-white mb-0 wow fadeInDown" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard" class="text-white">Admin</a></li>
+            <li class="breadcrumb-item active text-secondary">Categories</li>
+        </ol>
+    </div>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h2>Categories</h2>
+                <a asp-controller="Admin" asp-action="CreateCategory" class="btn btn-primary rounded-pill py-2 px-4">
+                    <i class="fas fa-plus me-2"></i>Create New Category
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null && Model.Any())
+                                    {
+                                        foreach (var category in Model)
+                                        {
+                                            <tr>
+                                                <td>@category.Id</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(category.ImageUrl))
+                                                    {
+                                                        <img src="@category.ImageUrl" alt="@category.CategoryName" style="width: 80px; height: 60px; object-fit: cover;" class="img-thumbnail" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No image</span>
+                                                    }
+                                                </td>
+                                                <td>@category.CategoryName</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(category.Description) && category.Description.Length > 50)
+                                                    {
+                                                        @(category.Description.Substring(0, 50) + "...")
+                                                    }
+                                                    else
+                                                    {
+                                                        @category.Description
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a asp-action="EditCategory" asp-route-id="@category.Id" class="btn btn-sm btn-primary me-2">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </a>
+                                                        <a asp-action="DeleteCategory" asp-route-id="@category.Id" class="btn btn-sm btn-danger">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center">No categories found. <a asp-action="CreateCategory">Add your first category</a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize any JavaScript functionality for this page
+        });
+    </script>
+} 

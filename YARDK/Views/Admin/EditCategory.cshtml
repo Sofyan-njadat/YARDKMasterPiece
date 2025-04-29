@@ -1,0 +1,106 @@
+@model YARDK.Models.Category
+@{
+    ViewData["Title"] = "Edit Category";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid bg-breadcrumb">
+    <div class="container text-center py-5" style="max-width: 900px;">
+        <h1 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Edit Category</h1>
+        <ol class="breadcrumb justify-content-center text-white mb-0 wow fadeInDown" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard" class="text-white">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Categories" class="text-white">Categories</a></li>
+            <li class="breadcrumb-item active text-secondary">Edit</li>
+        </ol>
+    </div>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="card-title mb-0">Edit Category</h4>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="EditCategory" method="post" enctype="multipart/form-data">
+                            <input type="hidden" asp-for="Id" />
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                            
+                            <div class="mb-3">
+                                <label asp-for="CategoryName" class="form-label">Category Name</label>
+                                <input asp-for="CategoryName" class="form-control" placeholder="Enter category name" />
+                                <span asp-validation-for="CategoryName" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">Description</label>
+                                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter category description"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Current Image</label>
+                                <div>
+                                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                    {
+                                        <img src="@Model.ImageUrl" alt="@Model.CategoryName" class="img-thumbnail" style="max-width: 300px; max-height: 200px;" />
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No image available</p>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="categoryImage" class="form-label">Change Image</label>
+                                <input type="file" id="categoryImage" name="categoryImage" class="form-control" accept="image/*" />
+                                <div class="form-text text-muted">Select a new image for the category (recommended size: 800x600px)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label>Preview</label>
+                                <div class="mt-2">
+                                    <img id="imagePreview" src="#" alt="Preview" style="max-width: 300px; max-height: 200px; display: none;" class="img-thumbnail" />
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a asp-action="Categories" class="btn btn-secondary rounded-pill px-4">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Categories
+                                </a>
+                                <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Image preview functionality
+            $("#categoryImage").change(function () {
+                var file = this.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $("#imagePreview").attr('src', e.target.result).show();
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    $("#imagePreview").hide();
+                }
+            });
+        });
+    </script>
+} 

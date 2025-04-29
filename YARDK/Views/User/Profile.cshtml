@@ -1,0 +1,380 @@
+﻿@{
+    ViewData["Title"] = "Profile";
+    Layout = "_Layout";
+}
+
+    <!-- Profile Section -->
+    <div class="container my-5">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["InfoMessage"] != null)
+        {
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                @TempData["InfoMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="profile-section p-4 bg-white rounded">
+                    <!-- Tabs Start -->
+                    <div class="user-tabs">
+                        <a asp-controller="User" asp-action="Profile" class="tab-button active">Profile</a>
+                        <a asp-controller="User" asp-action="MyAds" class="tab-button">My ADS</a>
+                        <a asp-controller="User" asp-action="MyOrders" class="tab-button">My Orders</a>
+                        <a asp-controller="User" asp-action="PaymentMethod" class="tab-button">Payment Method</a>
+                    </div>
+                    <!-- Tabs End -->
+
+                    <!-- Profile Content -->
+                    <div class="row g-4 mt-3">
+                        <!-- Profile Picture Column -->
+                        <div class="col-md-4">
+                            <div class="text-center profile-info-card p-3 h-100">
+                                <div class="avatar-edit mb-4 position-relative">
+                                    @{
+                                        var profileImgSrc = "/img/worker735.png";
+                                        if (!string.IsNullOrEmpty(ViewBag.ProfileImageUrl))
+                                        {
+                                            profileImgSrc = Url.Content(ViewBag.ProfileImageUrl);
+                                        }
+                                    }
+                                    <img src="@profileImgSrc" class="avatar-preview img-fluid rounded-circle shadow" 
+                                        style="width: 120px; height: 120px; object-fit: cover;" alt="Profile">
+                                    <button class="btn btn-primary btn-sm rounded-circle avatar-edit-btn"
+                                        onclick="document.getElementById('fileInputTrigger').click()">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                                <input type="file" id="fileInputTrigger" hidden accept="image/*">
+                            </div>
+                                <h4 class="mb-1">@(ViewBag.UserName ?? "User Name")</h4>
+                                <span class="badge bg-primary px-3 py-2 mb-3">@(Context.Request.Cookies["AccountType"] ?? "Personal Account")</span>
+                                
+                                <div class="account-stats mt-4">
+                                    <div class="row text-center g-3">
+                                        <div class="col-6">
+                                            <div class="stat-card p-2 rounded">
+                                                <i class="fas fa-ad text-primary mb-2"></i>
+                                                <h3 class="mb-0">@(ViewBag.AdsCount ?? 0)</h3>
+                                                <p class="mb-0 text-muted small">Active Ads</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="stat-card p-2 rounded">
+                                                <i class="fas fa-shopping-bag text-success mb-2"></i>
+                                                <h3 class="mb-0">@(ViewBag.OrdersCount ?? 0)</h3>
+                                                <p class="mb-0 text-muted small">Orders</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Information Column -->
+                        <div class="col-md-8">
+                            <div class="user-details-card p-4 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h3 class="section-title">Personal Information</h3>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal">
+                                        <i class="fas fa-edit me-2"></i>Edit Profile
+                                    </button>
+                                </div>
+                                
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="info-group">
+                                            <label class="text-muted small">Full Name</label>
+                                            <div class="d-flex align-items-center info-value">
+                                                <i class="fas fa-user text-primary me-2"></i>
+                                                <h5 class="mb-0">@(ViewBag.UserName ?? "User Name")</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="info-group">
+                                            <label class="text-muted small">Account Type</label>
+                                            <div class="d-flex align-items-center info-value">
+                                                <i class="fas fa-id-badge text-primary me-2"></i>
+                                                <h5 class="mb-0">@(Context.Request.Cookies["AccountType"] ?? "Personal Account")</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="info-group">
+                                            <label class="text-muted small">Email Address</label>
+                                            <div class="d-flex align-items-center info-value">
+                                                <i class="fas fa-envelope text-primary me-2"></i>
+                                                <h5 class="mb-0 text-break">@(ViewBag.UserEmail ?? "user@example.com")</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                <div class="col-md-6">
+                                        <div class="info-group">
+                                            <label class="text-muted small">Phone Number</label>
+                                            <div class="d-flex align-items-center info-value">
+                                                <i class="fas fa-phone text-primary me-2"></i>
+                                                <h5 class="mb-0">@(ViewBag.UserPhone ?? "+962 000 000 000")</h5>
+                                            </div>
+                                        </div>
+                                </div>
+                                    
+                                <div class="col-md-6">
+                                        <div class="info-group">
+                                            <label class="text-muted small">Joined Date</label>
+                                            <div class="d-flex align-items-center info-value">
+                                                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                                <h5 class="mb-0">@(Context.Request.Cookies["JoinDate"] ?? DateTime.Now.ToString("MMMM dd, yyyy"))</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Profile Modal -->
+                    <div class="modal fade" id="editModal" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit Profile</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="profileForm" asp-controller="User" asp-action="UpdateProfile" method="post" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <label for="profileImageInput" class="form-label">Profile Picture</label>
+                                            <input type="file" class="form-control" id="profileImageInput" name="ProfileImage" accept="image/*">
+                                            <img id="modalPreviewImage" src="#" alt="Image Preview" style="max-height: 100px; margin-top: 10px; display: none;"/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" id="editName" name="UserName" value="@(ViewBag.UserName)" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="editEmail" name="UserEmail" value="@(ViewBag.UserEmail)" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" id="editPhone" name="UserPhone" value="@(ViewBag.UserPhone)" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Password</label>
+                                            <input type="password" class="form-control" id="editPassword" name="Password" placeholder="Leave blank to keep current password">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Confirm Password</label>
+                                            <input type="password" class="form-control" id="confirmPassword" name="ConfirmPassword" placeholder="Confirm new password">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Account Type</label>
+                                            <select class="form-select" id="editAccountType" name="AccountType">
+                                                @{
+                                                    var accountType = Context.Request.Cookies["AccountType"] ?? "Personal Account";
+                                                }
+                                                <option value="Personal Account" selected="@(accountType == "Personal Account")">Personal Account</option>
+                                                <option value="Business Account" selected="@(accountType == "Business Account")">Business Account</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<style>
+    /* Tabs styling */
+    .user-tabs {
+        display: flex;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        overflow-x: auto; /* لضمان عرض التبويبات بشكل صحيح في الشاشات الصغيرة */
+    }
+
+    .tab-button {
+        font-weight: 600;
+        padding: 10px 20px;
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-bottom: none;
+        margin-right: 5px;
+        text-decoration: none;
+        color: #333;
+        border-radius: 5px 5px 0 0;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+    }
+
+    .tab-button:hover {
+        background-color: #e9f0ff;
+        color: #0056b3;
+    }
+    
+    .tab-button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+    
+    /* Profile page specific styles */
+    .profile-info-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .user-details-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .avatar-edit-btn {
+        position: absolute;
+        bottom: 70%;
+        right: 110%;
+        transform: translateX(50%);
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .info-group {
+        margin-bottom: 20px;
+    }
+    
+    .info-value {
+        background-color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .stat-card {
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        position: relative;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .section-title:after {
+        content: '';
+        display: block;
+        width: 50px;
+        height: 3px;
+        background-color: #007bff;
+        margin-top: 5px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // --- Link external button to the modal's file input AND handle preview --- 
+            const fileInputTrigger = document.getElementById('fileInputTrigger'); // Button's trigger input (outside modal)
+            const profileImageInput = document.getElementById('profileImageInput'); // Actual input inside modal
+            const avatarPreview = document.querySelector('.avatar-preview'); // Main profile preview
+            const modalPreviewImage = document.getElementById('modalPreviewImage'); // Optional preview inside modal
+
+            // When the camera button's trigger input is clicked (it's hidden, button clicks it)
+            fileInputTrigger.addEventListener('click', function(event) {
+                 // We prevent its default behavior and instead trigger the *modal's* input
+                 event.preventDefault(); 
+                 profileImageInput.click(); 
+            });
+
+             // When the modal's file input changes (user selects a file)
+            profileImageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Update both the main preview and the modal preview
+                        if (avatarPreview) {
+                             avatarPreview.src = e.target.result;
+                        }
+                         if (modalPreviewImage) {
+                             modalPreviewImage.src = e.target.result;
+                             modalPreviewImage.style.display = 'block'; // Show modal preview
+                         }
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                    
+                    // IMPORTANT: Copy the files from the modal input to the (now unused) trigger input 
+                    // IF any other script relies on fileInputTrigger.files for preview outside the modal.
+                    // If not needed, this line can be removed.
+                     // fileInputTrigger.files = this.files;
+                 } else {
+                     // No file selected or selection cancelled
+                     if (modalPreviewImage) {
+                         modalPreviewImage.style.display = 'none'; // Hide modal preview
+                     }
+                 }
+            });
+            // --- End linking logic --- 
+
+            // Pre-populate form fields with ViewBag values when edit modal opens
+            $('#editModal').on('show.bs.modal', function () {
+                $('#editName').val('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(ViewBag.UserName ?? ""))');
+                $('#editEmail').val('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(ViewBag.UserEmail ?? ""))');
+                $('#editPhone').val('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(ViewBag.UserPhone ?? ""))');
+                $('#editAccountType').val('@Context.Request.Cookies["AccountType"]'); // Keep AccountType from cookie for now
+            });
+            
+            // Set active tab based on current URL
+            const currentUrl = window.location.pathname;
+            $('.user-tabs a').each(function() {
+                const href = $(this).attr('href');
+                if (href && currentUrl.includes(href.split('/').pop())) {
+                    $('.user-tabs a').removeClass('active');
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,432 @@
+﻿@model List<YARDK.Models.Product>
+@{
+    ViewData["Title"] = "My Ads";
+    Layout = "_Layout";
+}
+
+    <!-- Profile Section -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="profile-section p-4">
+                    <!-- Tabs Start -->
+                    <div class="user-tabs">
+                        <a asp-controller="User" asp-action="Profile" class="tab-button">Profile</a>
+                    <a asp-controller="User" asp-action="MyAds" class="tab-button active">My ADS</a>
+                    <a asp-controller="User" asp-action="MyOrders" class="tab-button">My Orders</a>
+                        <a asp-controller="User" asp-action="PaymentMethod" class="tab-button">Payment Method</a>
+                    </div>
+                    <!-- Tabs End -->
+
+                    <!-- My Ads -->
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="section-title mb-0">My Ads (@(Model?.Count() ?? 0))</h6>
+                        @{
+                            // عد الإعلانات الفعالة (كمية > 0)
+                            int activeAdsCount = Model?.Count(p => p.Quantity > 0) ?? 0;
+                        }
+                        @if (activeAdsCount < 2)
+                        {
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newAdModal">
+                                <i class="fas fa-plus me-2"></i>New Ad
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary btn-sm" disabled title="You can have maximum 2 active ads">
+                                <i class="fas fa-plus me-2"></i>New Ad
+                            </button>
+                        }
+                    </div>
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+                    
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                    }
+                    
+                    <div class="alert alert-info mb-3" role="alert">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Info:</strong> You can have up to 2 active ads.
+                        </div>
+                    
+                        <div class="row g-3">
+                        @if (Model != null && Model.Any())
+                        {                            
+                            foreach (var ad in Model)
+                            {
+                            <div class="col-md-6">
+                                    <div class="product-card @(ad.Quantity <= 0 ? "sold-out" : "")">
+                                        @if (ad.ProductImages != null && ad.ProductImages.Any())
+                                        {
+                                            <div id="carousel-@ad.Id" class="carousel slide" data-bs-ride="carousel">
+                                                <div class="carousel-indicators">
+                                                    @for (int i = 0; i < ad.ProductImages.Count; i++)
+                                                    {
+                                                        <button type="button" data-bs-target="#carousel-@ad.Id" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"></button>
+                                                    }
+                                                </div>
+                                                <div class="carousel-inner">
+                                                    @foreach (var img in ad.ProductImages.OrderBy(p => p.DisplayOrder))
+                                                    {
+                                                        <div class="carousel-item @(img.IsMainImage ? "active" : "")">
+                                                            <img src="@img.ImageUrl" class="d-block w-100 rounded-top" alt="@ad.ProductName" style="height: 180px; object-fit: cover;">
+                                                        </div>
+                                                    }
+                                                </div>
+                                                @if (ad.ProductImages.Count > 1)
+                                                {
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@ad.Id" data-bs-slide="prev">
+                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Previous</span>
+                                                    </button>
+                                                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-@ad.Id" data-bs-slide="next">
+                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Next</span>
+                                                    </button>
+                                                }
+                                        </div>
+                                        }
+                                        else
+                                        {
+                                            <img src="@(string.IsNullOrEmpty(ad.ImageUrl) ? "/img/no-image.jpg" : ad.ImageUrl)" 
+                                                class="card-img-top rounded-top" alt="@ad.ProductName" style="height: 180px; object-fit: cover;">
+                                        }
+                                        
+                                        <div class="product-details p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0 product-title">@ad.ProductName</h6>
+                                                @if (ad.Quantity <= 0)
+                                                {
+                                                    <span class="badge bg-danger">Sold Out</span>
+                                                }
+                                    </div>
+                                            <p class="text-muted mb-2">Category: @ad.Category</p>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="price">JD @ad.Price</span>
+                                                <span class="quantity">Qty: @ad.Quantity</span>
+                                </div>
+                                            <div class="d-flex justify-content-end">
+                                                @if (ad.Quantity > 0) 
+                                                {
+                                                  <form asp-controller="Product" asp-action="DeleteProduct" method="post" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                                      <input type="hidden" name="id" value="@ad.Id" />
+                                                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                          <i class="fas fa-trash-alt me-1"></i> Delete
+                                                      </button>
+                                                  </form>
+                                                }
+                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12 text-center">
+                                <p>You haven't created any ads yet. Click the "New Ad" button to create your first ad.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                    <!-- New Ad Modal -->
+                    <div class="modal fade" id="newAdModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Create New Ad</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                <form asp-controller="Product" asp-action="AddProduct" method="post" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <label class="form-label">Ad Title</label>
+                                        <input type="text" name="ProductName" class="form-control" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Category</label>
+                                        <select name="Category" class="form-select" required>
+                                            <option value="">Select Category</option>
+                                            <option value="Electrical Appliances">Electrical Appliances</option>
+                                            <option value="Furniture">Furniture</option>
+                                            <option value="Scrap & Surplus">Scrap & Surplus</option>
+                                        </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Quantity</label>
+                                        <input type="number" name="Quantity" class="form-control" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                        <label class="form-label">Price (JD)</label>
+                                        <input type="number" name="Price" step="0.01" class="form-control" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Description</label>
+                                        <textarea name="Description" class="form-control" rows="4"></textarea>
+                                        </div>
+                                    
+                                        <div class="mb-3">
+                                        <label class="form-label">Product Images (Up to 5 images, first image will be the main image)</label>
+                                        <div class="product-images-container">
+                                            <div class="row mb-2 image-upload-row">
+                                                <div class="col-md-6">
+                                                    <input type="file" name="ProductImages" class="form-control product-image-input" accept="image/*" required>
+                                                    <small class="text-primary">Main Image (required)</small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="image-preview"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="additional-images mb-2">
+                                                <!-- Additional image inputs will be added here dynamically -->
+                                            </div>
+                                            
+                                            <button type="button" class="btn btn-sm btn-outline-primary add-image-btn" id="addImageBtn">
+                                                <i class="fas fa-plus me-1"></i>Add Another Image
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <button type="submit" class="btn btn-primary">Publish Ad</button>
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                                    </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<style>
+    /* Tabs styling */
+    .user-tabs {
+        display: flex;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        overflow-x: auto; /* لضمان عرض التبويبات بشكل صحيح في الشاشات الصغيرة */
+    }
+
+    .tab-button {
+        font-weight: 600;
+        padding: 10px 20px;
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-bottom: none;
+        margin-right: 5px;
+        text-decoration: none;
+        color: #333;
+        border-radius: 5px 5px 0 0;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+    }
+
+    .tab-button:hover {
+        background-color: #e9f0ff;
+        color: #0056b3;
+    }
+    
+    .tab-button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+    
+    /* Product card styling */
+    .product-card {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        background-color: white;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .product-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .product-title {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 70%;
+    }
+    
+    .price {
+        font-weight: 700;
+        color: #28a745;
+    }
+    
+    .quantity {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .sold-out {
+        position: relative;
+        opacity: 0.8;
+    }
+    
+    /* Image upload styles */
+    .image-preview {
+        width: 100px;
+        height: 100px;
+        border: 1px dashed #ddd;
+        margin-top: 10px;
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .product-image-input {
+        margin-bottom: 8px;
+    }
+    
+    .image-upload-row {
+        position: relative;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        margin-bottom: 10px;
+    }
+    
+    .remove-image-btn {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        background: #fff;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Product carousel styles */
+    .carousel-indicators {
+        position: absolute;
+        bottom: 0;
+        margin-bottom: 0;
+    }
+    
+    .carousel-indicators button {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: rgba(255,255,255,0.7);
+        margin: 0 3px;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 10%;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            let imageCount = 1; // Start with one image (the main image)
+            const maxImages = 5;
+            
+            // Set active tab based on current URL
+            const currentUrl = window.location.pathname;
+            $('.user-tabs a').each(function() {
+                const href = $(this).attr('href');
+                if (href && currentUrl.includes(href.split('/').pop())) {
+                    $('.user-tabs a').removeClass('active');
+                    $(this).addClass('active');
+                }
+            });
+            
+            // Handle image preview for the main image
+            $(document).on('change', '.product-image-input', function() {
+                const input = this;
+                const preview = $(this).closest('.image-upload-row').find('.image-preview');
+                
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        preview.css('background-image', `url(${e.target.result})`);
+                    }
+                    
+                    reader.readAsDataURL(input.files[0]);
+                }
+            });
+            
+            // Add more image inputs (up to 5)
+            $('#addImageBtn').click(function() {
+                if (imageCount >= maxImages) {
+                    alert('You can upload a maximum of 5 images');
+                    return;
+                }
+                
+                imageCount++;
+                
+                const newRow = `
+                    <div class="row image-upload-row">
+                        <div class="col-md-6">
+                            <input type="file" name="ProductImages" class="form-control product-image-input" accept="image/*">
+                            <small class="text-muted">Additional Image ${imageCount}</small>
+                        </div>
+                            <div class="col-md-6">
+                            <div class="image-preview"></div>
+                        </div>
+                        <div class="remove-image-btn">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                `;
+                
+                $('.additional-images').append(newRow);
+                
+                // Disable the add button if we've reached the maximum
+                if (imageCount >= maxImages) {
+                    $('#addImageBtn').prop('disabled', true);
+                }
+            });
+            
+            // Remove image input
+            $(document).on('click', '.remove-image-btn', function() {
+                $(this).closest('.image-upload-row').remove();
+                imageCount--;
+                
+                // Re-enable the add button if we're below the maximum
+                if (imageCount < maxImages) {
+                    $('#addImageBtn').prop('disabled', false);
+                }
+            });
+            
+            // Initialize carousels
+            $('.carousel').carousel();
+        });
+    </script>
+}
