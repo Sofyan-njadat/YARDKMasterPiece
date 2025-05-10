@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using YARDK.Models;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,12 +9,18 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MyConnectionString")));
 
-// Add session service
+// Add session service with increased timeout and memory limit
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout
+    options.IdleTimeout = TimeSpan.FromHours(2); // Increased session timeout to 2 hours
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+});
+
+// Configure session state to use more memory
+builder.Services.AddDistributedMemoryCache(options =>
+{
+    options.SizeLimit = 100 * 1024 * 1024; // 100MB
 });
 
 var app = builder.Build();

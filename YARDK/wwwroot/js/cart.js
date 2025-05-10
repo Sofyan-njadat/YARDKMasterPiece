@@ -106,5 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const productId = this.getAttribute('data-product-id');
             addToCart(productId);
         });
+
     });
+}); 
 }); 

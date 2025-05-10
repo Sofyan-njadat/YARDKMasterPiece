@@ -1,153 +1,155 @@
 @model YARDK.Models.Order
 @{
-    ViewData["Title"] = "Order Details";
-    Layout = "_Layout";
+	ViewData["Title"] = "Order Details";
+	Layout = "_Layout";
 }
 
 <div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h2 class="mb-0">Order Details</h2>
-            <p class="text-muted">Order #@Model.OrderNumber</p>
-        </div>
-        <div class="col-md-6 text-md-end">
-            <a href="@Url.Action("MyOrders", "User")" class="btn btn-outline-primary">
-                <i class="fas fa-arrow-left me-2"></i>Back to My Orders
-            </a>
-        </div>
-    </div>
+	<div style="box-shadow: 0px 1px 14px 8px #cccccc ; padding: 25px 25px 25px 25px; border-radius: 15px;">
+		<div class="row mb-4">
+			<div class="col-md-6">
+				<h2 class="mb-0">Order Details</h2>
+				<p class="text-muted">Order #@Model.OrderNumber</p>
+			</div>
+			<div class="col-md-6 text-md-end">
+				<a href="@Url.Action("MyOrders", "User")" class="btn btn-outline-primary">
+					<i class="fas fa-arrow-left me-2"></i>Back to My Orders
+				</a>
+			</div>
+		</div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Order Items -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Order Items</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model.OrderItems)
-                                {
-                                    <tr>
-                                        <td class="align-middle">
-                                            <div class="d-flex align-items-center">
-                                                @if (item.Product?.ImageUrl != null)
-                                                {
-                                                    <img src="@item.Product.ImageUrl" alt="@item.Product.ProductName" 
-                                                         class="img-thumbnail me-3" style="width: 50px; height: 50px;">
-                                                }
-                                                else
-                                                {
-                                                    <img src="~/img/no-image.jpg" alt="Product" 
-                                                         class="img-thumbnail me-3" style="width: 50px; height: 50px;">
-                                                }
-                                                <div>
-                                                    <p class="mb-0">@item.Product?.ProductName</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle">@item.Quantity</td>
-                                        <td class="align-middle">JD @item.UnitPrice.ToString("F2")</td>
-                                        <td class="align-middle">JD @item.TotalPrice.ToString("F2")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                            <tfoot class="table-light">
-                                <tr>
-                                    <td colspan="3" class="text-end fw-bold">Total:</td>
-                                    <td class="fw-bold">JD @Model.TotalAmount.ToString("F2")</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+		<div class="row">
+			<div class="col-lg-8">
+				<!-- Order Items -->
+				<div class="card shadow-sm mb-4">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Order Items</h5>
+					</div>
+					<div class="card-body p-0">
+						<div class="table-responsive">
+							<table class="table table-striped mb-0">
+								<thead>
+									<tr>
+										<th>Product</th>
+										<th>Quantity</th>
+										<th>Price</th>
+										<th>Total</th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach (var item in Model.OrderItems)
+									{
+										<tr>
+											<td class="align-middle">
+												<div class="d-flex align-items-center">
+													@if (item.Product?.ImageUrl != null)
+													{
+														<img src="@item.Product.ImageUrl" alt="@item.Product.ProductName"
+															 class="img-thumbnail me-3" style="width: 50px; height: 50px;">
+													}
+													else
+													{
+														<img src="~/img/no-image.jpg" alt="Product"
+															 class="img-thumbnail me-3" style="width: 50px; height: 50px;">
+													}
+													<div>
+														<p class="mb-0">@item.Product?.ProductName</p>
+													</div>
+												</div>
+											</td>
+											<td class="align-middle">@item.Quantity</td>
+											<td class="align-middle">JD @item.UnitPrice.ToString("F2")</td>
+											<td class="align-middle">JD @item.TotalPrice.ToString("F2")</td>
+										</tr>
+									}
+								</tbody>
+								<tfoot class="table-light">
+									<tr>
+										<td colspan="3" class="text-end fw-bold">Total:</td>
+										<td class="fw-bold">JD @Model.TotalAmount.ToString("F2")</td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
 
-        <div class="col-lg-4">
-            <!-- Order Summary -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Order Summary</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Order Date:</span>
-                        <span>@Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Status:</span>
-                        <span>
-                            @if (Model.Status == "Pending")
-                            {
-                                <span class="badge bg-warning">@Model.Status</span>
-                            }
-                            else if (Model.Status == "Completed")
-                            {
-                                <span class="badge bg-success">@Model.Status</span>
-                            }
-                            else if (Model.Status == "Cancelled")
-                            {
-                                <span class="badge bg-danger">@Model.Status</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">@Model.Status</span>
-                            }
-                        </span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Payment Method:</span>
-                        <span>@Model.PaymentMethod</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Payment Status:</span>
-                        <span>
-                            @if (Model.PaymentStatus == "Pending")
-                            {
-                                <span class="badge bg-warning">@Model.PaymentStatus</span>
-                            }
-                            else if (Model.PaymentStatus == "Completed")
-                            {
-                                <span class="badge bg-success">@Model.PaymentStatus</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">@Model.PaymentStatus</span>
-                            }
-                        </span>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between fw-bold">
-                        <span>Total Amount:</span>
-                        <span class="text-primary">JD @Model.TotalAmount.ToString("F2")</span>
-                    </div>
-                </div>
-            </div>
+			<div class="col-lg-4">
+				<!-- Order Summary -->
+				<div class="card shadow-sm mb-4">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Order Summary</h5>
+					</div>
+					<div class="card-body">
+						<div class="d-flex justify-content-between mb-2">
+							<span>Order Date:</span>
+							<span>@Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</span>
+						</div>
+						<div class="d-flex justify-content-between mb-2">
+							<span>Status:</span>
+							<span>
+								@if (Model.Status == "Pending")
+								{
+									<span class="badge bg-warning">@Model.Status</span>
+								}
+								else if (Model.Status == "Completed")
+								{
+									<span class="badge bg-success">@Model.Status</span>
+								}
+								else if (Model.Status == "Cancelled")
+								{
+									<span class="badge bg-danger">@Model.Status</span>
+								}
+								else
+								{
+									<span class="badge bg-secondary">@Model.Status</span>
+								}
+							</span>
+						</div>
+						<div class="d-flex justify-content-between mb-2">
+							<span>Payment Method:</span>
+							<span>@Model.PaymentMethod</span>
+						</div>
+						<div class="d-flex justify-content-between mb-2">
+							<span>Payment Status:</span>
+							<span>
+								@if (Model.PaymentStatus == "Pending")
+								{
+									<span class="badge bg-warning">@Model.PaymentStatus</span>
+								}
+								else if (Model.PaymentStatus == "Completed")
+								{
+									<span class="badge bg-success">@Model.PaymentStatus</span>
+								}
+								else
+								{
+									<span class="badge bg-secondary">@Model.PaymentStatus</span>
+								}
+							</span>
+						</div>
+						<hr>
+						<div class="d-flex justify-content-between fw-bold">
+							<span>Total Amount:</span>
+							<span class="text-primary">JD @Model.TotalAmount.ToString("F2")</span>
+						</div>
+					</div>
+				</div>
 
-            <!-- Shipping Details -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Shipping Details</h5>
-                </div>
-                <div class="card-body">
-                    <p class="mb-2"><strong>Shipping Address:</strong></p>
-                    <p class="mb-4">@(Model.ShippingAddress ?? "Not Available")</p>
+				<!-- Shipping Details -->
+				<div class="card shadow-sm">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Shipping Details</h5>
+					</div>
+					<div class="card-body">
+						<p class="mb-2"><strong>Shipping Address:</strong></p>
+						<p class="mb-4">@(Model.ShippingAddress ?? "Not Available")</p>
 
-                    <p class="mb-2"><strong>Billing Address:</strong></p>
-                    <p>@(Model.BillingAddress ?? "Not Available")</p>
-                </div>
-            </div>
-        </div>
-    </div>
+						<p class="mb-2"><strong>Billing Address:</strong></p>
+						<p>@(Model.BillingAddress ?? "Not Available")</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div> 

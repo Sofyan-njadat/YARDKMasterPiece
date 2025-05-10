@@ -5,10 +5,20 @@
 }
 
 <div class="container py-5">
+    <!-- رسالة النجاح -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="text-center mb-5">
         <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
         <h2 class="mt-4">Thank You for Your Order!</h2>
-        <p class="lead">Your order has been placed successfully.</p>
+        <p class="lead">Your order has been placed successfully and is being processed.</p>
+        <p>A confirmation email will be sent to your registered email address.</p>
     </div>
 
     <div class="row">
@@ -24,12 +34,19 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <p><strong>Order Date:</strong> @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
-                                <p><strong>Order Status:</strong> <span class="badge bg-warning">@Model.Status</span></p>
+                                <p><strong>Order Status:</strong> 
+                                    <span class="badge bg-warning">@Model.Status</span>
+                                </p>
                                 <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+                                <p><strong>Payment Status:</strong> 
+                                    <span class="badge bg-success">@Model.PaymentStatus</span>
+                                </p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Total:</strong> JD @Model.TotalAmount.ToString("F2")</p>
                                 <p><strong>Shipping Address:</strong> @Model.ShippingAddress</p>
+                                <p><strong>Shipping Cost:</strong> JD @(Math.Round(Model.TotalAmount * 0.05m, 2).ToString("F2"))</p>
+                                <p><strong>Subtotal:</strong> JD @(Math.Round(Model.TotalAmount * 0.95m, 2).ToString("F2"))</p>
+                                <p><strong>Total:</strong> <span class="text-primary fw-bold">JD @Model.TotalAmount.ToString("F2")</span></p>
                             </div>
                         </div>
                     </div>
@@ -63,13 +80,40 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <div class="text-center">
+                    <div class="d-flex justify-content-between align-items-center">
                         <a href="@Url.Action("Categories", "Product")" class="btn btn-primary">
                             <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                        </a>
+                        <a href="@Url.Action("MyOrders", "User")" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>View All Orders
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+@section Scripts {
+    <script>
+        // تحويل المستخدم إلى صفحة الطلبات بعد 10 ثوانٍ
+        $(document).ready(function() {
+            setTimeout(function() {
+                window.location.href = '@Url.Action("MyOrders", "User")';
+            }, 30000); // 10 ثوانٍ
+
+            // عرض العد التنازلي
+            var secondsLeft = 30;
+            var countdownElement = $('<div class="alert alert-info mt-3" role="alert"><i class="fas fa-clock me-2"></i> <span id="countdown-text">Redirecting to My Orders page in 10 seconds...</span></div>');
+            $('.container').prepend(countdownElement);
+
+            var countdownInterval = setInterval(function() {
+                secondsLeft--;
+                $('#countdown-text').text('Redirecting to My Orders page in ' + secondsLeft + ' seconds...');
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        });
+    </script>
+} 

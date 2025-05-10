@@ -20,12 +20,73 @@ namespace YARDK.Controllers
         {
             _context = context;
             _hostEnvironment = hostEnvironment; // Assign injected dependency
+            
+            // Ensure PaymentMethod table exists
+            EnsurePaymentMethodTableExists();
         }
 
         // التحقق من صلاحيات المستخدم كمسؤول
         private bool IsAdmin()
         {
             return Request.Cookies["UserRole"]?.ToString() == "Admin";
+        }
+
+        private void EnsurePaymentMethodTableExists()
+        {
+            try
+            {
+                // Check if the PaymentMethod table exists
+                bool tableExists = false;
+                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT COUNT(*) 
+                        FROM INFORMATION_SCHEMA.TABLES 
+                        WHERE TABLE_SCHEMA = 'dbo' 
+                        AND TABLE_NAME = 'PaymentMethods'";
+                    
+                    _context.Database.OpenConnection();
+                    var result = command.ExecuteScalar();
+                    tableExists = Convert.ToInt32(result) > 0;
+                }
+                
+                // If the table doesn't exist, create it
+                if (!tableExists)
+                {
+                    using (var command = _context.Database.GetDbConnection().CreateCommand())
+                    {
+                        command.CommandText = @"
+                            CREATE TABLE [dbo].[PaymentMethods] (
+                                [ID] INT IDENTITY(1,1) NOT NULL,
+                                [UserID] INT NOT NULL,
+                                [CardNumber] NVARCHAR(19) NOT NULL,
+                                [MaskedCardNumber] NVARCHAR(255) NOT NULL,
+                                [ExpiryDate] NVARCHAR(5) NOT NULL,
+                                [CVV] NVARCHAR(3) NOT NULL,
+                                [CardHolderName] NVARCHAR(100) NULL,
+                                [CardType] NVARCHAR(20) NULL,
+                                [IsDefault] BIT DEFAULT 1,
+                                [CreatedAt] DATETIME DEFAULT GETDATE(),
+                                [UpdatedAt] DATETIME NULL,
+                                CONSTRAINT [PK__PaymentMethods__3214EC274F9B1DFE] PRIMARY KEY CLUSTERED ([ID] ASC),
+                                CONSTRAINT [UK_PaymentMethods_UserID] UNIQUE ([UserID]),
+                                CONSTRAINT [FK__PaymentMethods__UserID__123456] FOREIGN KEY ([UserID]) REFERENCES [dbo].[Users] ([ID])
+                            )";
+                        
+                        _context.Database.OpenConnection();
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but continue
+                Console.WriteLine($"Error ensuring PaymentMethod table exists: {ex.Message}");
+            }
+            finally
+            {
+                _context.Database.CloseConnection();
+            }
         }
 
         // دالة للتحقق من صلاحيات المستخدم قبل الوصول إلى صفحات الإدارة
@@ -150,6 +211,9 @@ namespace YARDK.Controllers
                         return View(model);
                     }
 
+                    // Get cart items from session before login
+                    List<CartItemViewModel> sessionCart = GetCartFromSession();
+
                     // الحصول على قيمة Role، وإذا كانت فارغة استخدم "User" كقيمة افتراضية
                     string userRole = user.Role ?? "User";
 
@@ -171,6 +235,12 @@ namespace YARDK.Controllers
                     Response.Cookies.Append("UserName", user.Name, cookieOptions);
                     Response.Cookies.Append("UserRole", userRole, cookieOptions);
 
+                    // If there are items in the session cart, merge them with the user's database cart
+                    if (sessionCart != null && sessionCart.Any())
+                    {
+                        MergeSessionCartToDatabase(user.Id, sessionCart);
+                    }
+
                     return RedirectToAction("Index", "Home");
                 }
                 catch (Exception ex)
@@ -180,6 +250,89 @@ namespace YARDK.Controllers
             }
 
             return View(model);
+        }
+
+        private List<CartItemViewModel> GetCartFromSession()
+        {
+            var cart = HttpContext.Session.GetString("Cart");
+            if (string.IsNullOrEmpty(cart))
+            {
+                return new List<CartItemViewModel>();
+            }
+            try
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<List<CartItemViewModel>>(cart);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deserializing cart: {ex.Message}");
+                return new List<CartItemViewModel>();
+            }
+        }
+
+        private void MergeSessionCartToDatabase(int userId, List<CartItemViewModel> sessionCart)
+        {
+            try
+            {
+                if (sessionCart == null || !sessionCart.Any())
+                {
+                    return; // No session items to merge
+                }
+                
+                // Check if user already has a cart
+                var userCart = _context.Carts.FirstOrDefault(c => c.UserId == userId);
+                
+                // If no cart exists, create one
+                if (userCart == null)
+                {
+                    userCart = new Cart
+                    {
+                        UserId = userId,
+                        CreatedAt = DateTime.Now
+                    };
+                    
+                    _context.Carts.Add(userCart);
+                    _context.SaveChanges(); // Save to get the cart ID
+                }
+                
+                // Add session items to database cart
+                foreach (var item in sessionCart)
+                {
+                    // Check if product already in cart
+                    var existingItem = _context.CartItems
+                        .FirstOrDefault(ci => ci.CartId == userCart.Id && ci.ProductId == item.ProductId);
+                        
+                    if (existingItem != null)
+                    {
+                        // Update quantity if item already exists
+                        existingItem.Quantity += item.Quantity;
+                        existingItem.UpdatedAt = DateTime.Now;
+                    }
+                    else
+                    {
+                        // Add new item
+                        var cartItem = new CartItem
+                        {
+                            CartId = userCart.Id,
+                            ProductId = item.ProductId,
+                            Quantity = item.Quantity,
+                            CreatedAt = DateTime.Now
+                        };
+                        
+                        _context.CartItems.Add(cartItem);
+                    }
+                }
+                
+                _context.SaveChanges();
+                
+                // Clear session cart after merging
+                HttpContext.Session.Remove("Cart");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error merging session cart to database: {ex.Message}");
+                // Log the error
+            }
         }
 
         // GET: UserController/Logout
@@ -260,7 +413,158 @@ namespace YARDK.Controllers
                 return RedirectToAction("Login");
             }
 
-            return View();
+            int userId = int.Parse(Request.Cookies["UserId"]);
+            
+            // Get the user's payment method if it exists
+            var paymentMethod = _context.PaymentMethods
+                .FirstOrDefault(p => p.UserId == userId);
+            
+            // Pass the payment method to the view
+            return View(paymentMethod);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPaymentMethod(PaymentMethodViewModel model)
+        {
+            // Check if user is logged in
+            if (Request.Cookies["UserId"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            int userId = int.Parse(Request.Cookies["UserId"]);
+            
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Check if the user already has a payment method
+                    var existingPaymentMethod = await _context.PaymentMethods
+                        .FirstOrDefaultAsync(p => p.UserId == userId);
+                    
+                    if (existingPaymentMethod != null)
+                    {
+                        // Update existing payment method
+                        existingPaymentMethod.CardNumber = model.CardNumber;
+                        existingPaymentMethod.MaskedCardNumber = MaskCardNumber(model.CardNumber);
+                        existingPaymentMethod.ExpiryDate = model.ExpiryDate;
+                        existingPaymentMethod.CVV = model.CVV;
+                        existingPaymentMethod.CardHolderName = model.CardHolderName;
+                        existingPaymentMethod.CardType = DetectCardType(model.CardNumber);
+                        existingPaymentMethod.UpdatedAt = DateTime.Now;
+                        
+                        _context.Update(existingPaymentMethod);
+                        TempData["SuccessMessage"] = "Payment method updated successfully.";
+                    }
+                    else
+                    {
+                        // Create new payment method
+                        var newPaymentMethod = new PaymentMethod
+                        {
+                            UserId = userId,
+                            CardNumber = model.CardNumber,
+                            MaskedCardNumber = MaskCardNumber(model.CardNumber),
+                            ExpiryDate = model.ExpiryDate,
+                            CVV = model.CVV,
+                            CardHolderName = model.CardHolderName,
+                            CardType = DetectCardType(model.CardNumber),
+                            IsDefault = true,
+                            CreatedAt = DateTime.Now
+                        };
+                        
+                        _context.PaymentMethods.Add(newPaymentMethod);
+                        TempData["SuccessMessage"] = "Payment method added successfully.";
+                    }
+                    
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("PaymentMethod");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Error: {ex.Message}");
+                }
+            }
+            
+            // If we reach here, there was an error, return to view with model
+            return RedirectToAction("PaymentMethod");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePaymentMethod()
+        {
+            // Check if user is logged in
+            if (Request.Cookies["UserId"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            int userId = int.Parse(Request.Cookies["UserId"]);
+            
+            try
+            {
+                // Find the user's payment method
+                var paymentMethod = await _context.PaymentMethods
+                    .FirstOrDefaultAsync(p => p.UserId == userId);
+                
+                if (paymentMethod != null)
+                {
+                    _context.PaymentMethods.Remove(paymentMethod);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Payment method deleted successfully.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "No payment method found to delete.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error: {ex.Message}";
+            }
+            
+            return RedirectToAction("PaymentMethod");
+        }
+
+        // Helper method to mask the card number
+        private string MaskCardNumber(string cardNumber)
+        {
+            // Keep only the last 4 digits visible
+            if (cardNumber.Length >= 4)
+            {
+                return "xxxx xxxx xxxx " + cardNumber.Substring(cardNumber.Length - 4);
+            }
+            
+            return cardNumber;
+        }
+
+        // Helper method to detect card type based on first digit(s)
+        private string DetectCardType(string cardNumber)
+        {
+            if (string.IsNullOrEmpty(cardNumber) || cardNumber.Length < 1)
+            {
+                return "Unknown";
+            }
+            
+            // Simple detection based on first digits
+            switch (cardNumber[0])
+            {
+                case '4':
+                    return "Visa";
+                case '5':
+                    return "MasterCard";
+                case '3':
+                    if (cardNumber.Length > 1 && (cardNumber[1] == '4' || cardNumber[1] == '7'))
+                    {
+                        return "AmericanExpress";
+                    }
+                    return "Unknown";
+                case '6':
+                    return "Discover";
+                default:
+                    return "Unknown";
+            }
         }
 
         public async Task<ActionResult> MyOrders()
@@ -271,16 +575,30 @@ namespace YARDK.Controllers
                 return RedirectToAction("Login");
             }
 
-            // الحصول على معرف المستخدم من الكوكيز
-            int userId = int.Parse(Request.Cookies["UserId"]);
+            try
+            {
+                // الحصول على معرف المستخدم من الكوكيز
+                int userId = int.Parse(Request.Cookies["UserId"]);
 
-            // الحصول على طلبات المستخدم
-            var orders = await _context.Orders
-                .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
+                // الحصول على طلبات المستخدم
+                var orders = await _context.Orders
+                    .Where(o => o.UserId == userId)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .ToListAsync();
 
-            return View(orders);
+                // إذا كان هناك رسالة نجاح من صفحة تأكيد الطلب، حافظ عليها
+                if (TempData["SuccessMessage"] != null)
+                {
+                    TempData["SuccessMessage"] = TempData["SuccessMessage"].ToString();
+                }
+
+                return View(orders);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error loading orders: {ex.Message}";
+                return View(new List<Order>());
+            }
         }
 
         public async Task<ActionResult> OrderDetails(int id)
@@ -291,21 +609,30 @@ namespace YARDK.Controllers
                 return RedirectToAction("Login");
             }
 
-            // الحصول على معرف المستخدم من الكوكيز
-            int userId = int.Parse(Request.Cookies["UserId"]);
-
-            // الحصول على تفاصيل الطلب
-            var order = await _context.Orders
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
-
-            if (order == null)
+            try
             {
-                return NotFound();
-            }
+                // الحصول على معرف المستخدم من الكوكيز
+                int userId = int.Parse(Request.Cookies["UserId"]);
 
-            return View(order);
+                // الحصول على تفاصيل الطلب
+                var order = await _context.Orders
+                    .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                    .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Order not found.";
+                    return RedirectToAction("MyOrders");
+                }
+
+                return View(order);
+        }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error loading order details: {ex.Message}";
+                return RedirectToAction("MyOrders");
+            }
         }
 
         // POST: User/UpdateProfile

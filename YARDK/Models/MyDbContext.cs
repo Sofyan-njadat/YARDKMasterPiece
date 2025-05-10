@@ -31,6 +31,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<Payment> Payments { get; set; }
 
+    public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductImage> ProductImages { get; set; }
@@ -200,6 +202,30 @@ public partial class MyDbContext : DbContext
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
                 .HasConstraintName("FK__Payments__OrderI__5DCAEF64");
+        });
+
+        modelBuilder.Entity<PaymentMethod>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__PaymentMethods__3214EC274F9B1DFE");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.CardNumber).HasMaxLength(19);
+            entity.Property(e => e.MaskedCardNumber).HasMaxLength(255);
+            entity.Property(e => e.ExpiryDate).HasMaxLength(5);
+            entity.Property(e => e.CVV).HasMaxLength(3);
+            entity.Property(e => e.CardHolderName).HasMaxLength(100);
+            entity.Property(e => e.CardType).HasMaxLength(20);
+            entity.Property(e => e.IsDefault).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PaymentMethods__UserID__123456");
         });
 
         modelBuilder.Entity<Product>(entity =>
