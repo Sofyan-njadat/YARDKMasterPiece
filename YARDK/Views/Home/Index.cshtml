@@ -3,26 +3,6 @@
     ViewData["Title"] = "YARDK-Home";
 }
 
-<!-- Modal Search Start -->
-<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content rounded-0">
-            <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body d-flex align-items-center">
-                <div class="input-group w-75 mx-auto d-flex">
-                    <input type="search" class="form-control p-3" placeholder="Search Here ..."
-                           aria-describedby="search-icon-1">
-                    <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Modal Search End -->
-
-
 <!-- Carousel Start -->
 <div class="carousel-header">
     <div id="carouselId" class="carousel slide" data-bs-ride="carousel">
@@ -43,7 +23,7 @@
                             data-wow-delay="0.3s">
                             Transforming Surplus into Success
                         </h1>
-                        <p class="text-white mb-4 mb-md-5 fs-5 wow fadeInUp" data-wow-delay="0.5s">
+                        <p class="text-white mb-4 mb-md-5 fs-5 wow fadeInUp d-none d-sm-block" data-wow-delay="0.5s">
                             We give surplus
                             and scrap a second chance, transforming
                             unused items into valuable resources while supporting businesses and sustainability
@@ -65,7 +45,7 @@
                             data-wow-delay="0.3s">
                             From Waste to Worth: Redefining Value
                         </h1>
-                        <p class="text-white mb-4 mb-md-5 fs-5 wow fadeInUp" data-wow-delay="0.5s">
+                        <p class="text-white mb-4 mb-md-5 fs-5 wow fadeInUp d-none d-sm-block" data-wow-delay="0.5s">
                             We bring surplus
                             items, appliances, and unused furniture
                             back to life, transforming them into valuable opportunities for everyone.
@@ -90,6 +70,39 @@
 </div>
 <!-- Carousel End -->
 
+<!-- Add responsive styles to fix mobile view -->
+<style>
+    @@media (max-width: 576px) {
+        .carousel-caption {
+            top: auto !important;
+            bottom: 0 !important;
+            padding-top: 80px !important;
+        }
+        
+        .carousel-item {
+            height: 100vh;
+        }
+        
+        .carousel-item img {
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .carousel-caption h1 {
+            font-size: 2rem !important;
+        }
+        
+        .carousel-caption h4, 
+        .carousel-caption h5 {
+            font-size: 1rem !important;
+        }
+        
+        .carousel-caption .btn {
+            padding: 0.5rem 1.5rem !important;
+            font-size: 0.9rem !important;
+        }
+    }
+</style>
 
 
 <!-- Counter Facts Start -->
@@ -321,9 +334,9 @@
     <div class="container">
         <div class="section-title text-center wow fadeInUp" data-wow-delay="0.1s" style="margin-bottom: 70px;">
             <div class="sub-style">
-                <h5 class="sub-title text-primary px-3">COUNTRIES WE SERVE</h5>
+                <h5 class="sub-title text-primary px-3">COUNTRIES WE PLANING TOSERVE</h5>
             </div>
-            <h1 class="display-5 mb-4">We are in four countries in the Middle East</h1>
+            <h1 class="display-5 mb-4">We are planning to serve in four countries in the Middle East</h1>
         </div>
         <div class="row g-4 text-center">
             <div class="col-lg-6 col-xl-3 mb-5 mb-xl-0 wow fadeInUp" data-wow-delay="0.1s">
@@ -440,3 +453,11 @@
     </div>
 </div>
 <!-- Contact End -->
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            
+        });
+    </script>
+}

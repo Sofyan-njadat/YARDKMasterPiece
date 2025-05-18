@@ -18,56 +18,45 @@ namespace YARDK.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<Category> categories;
+            List<Category> categories = new List<Category>();
+            List<dynamic> feedbacks = new List<dynamic>();
 
             try
             {
                 // محاولة الحصول على الفئات من قاعدة البيانات
                 categories = await _context.Categories.ToListAsync();
-
-                // إذا لم توجد فئات في قاعدة البيانات، قم بإنشاء فئات افتراضية وإضافتها للقاعدة
-                if (categories == null || !categories.Any())
+                
+                // الحصول على آخر 4 تقييمات من قاعدة البيانات
+                var dbFeedbacks = await _context.Feedbacks
+                    .OrderByDescending(f => f.CreatedAt)
+                    .Take(4)
+                    .ToListAsync();
+                
+                // تحقق من وجود تقييمات في قاعدة البيانات
+                if (dbFeedbacks != null && dbFeedbacks.Any())
                 {
-                    // إضافة الفئات الافتراضية إلى قاعدة البيانات
-                    categories = GetDefaultCategories();
-                    _context.Categories.AddRange(categories);
-                    await _context.SaveChangesAsync();
+                    feedbacks = dbFeedbacks.Select(f => new
+                    {
+                        Name = f.Name,
+                        Message = f.Message
+                    }).ToList<dynamic>();
+                    
+                    _logger.LogInformation($"تم جلب {feedbacks.Count} تقييمات من قاعدة البيانات");
                 }
+                else
+                {
+                    _logger.LogWarning("لا توجد تقييمات في قاعدة البيانات");
+                }
+                
+                ViewBag.Feedbacks = feedbacks;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "حدث خطأ أثناء الحصول على الفئات من قاعدة البيانات");
-                // استخدام فئات افتراضية في حالة حدوث خطأ
-                categories = GetDefaultCategories();
+                _logger.LogError(ex, "حدث خطأ أثناء الحصول على البيانات من قاعدة البيانات");
+                ViewBag.Feedbacks = new List<object>();
             }
 
             return View(categories);
-        }
-
-        // دالة مساعدة للحصول على فئات افتراضية
-        private List<Category> GetDefaultCategories()
-        {
-            return new List<Category>
-            {
-                new Category
-                {
-                    CategoryName = "Electrical Appliances",
-                    Description = "Browse through surplus and used electrical appliances, perfect for resellers, companies, and individuals looking for cost-effective solutions.",
-                    ImageUrl = "/img/Electrical Appliances/electricalApplinces01.jpg"
-                },
-                new Category
-                {
-                    CategoryName = "Furniture",
-                    Description = "Discover quality surplus and second-hand furniture for your home or office at affordable prices.",
-                    ImageUrl = "/img/Furnituer/Furnituer01.jpg"
-                },
-                new Category
-                {
-                    CategoryName = "Scrap & Surplus",
-                    Description = "Find valuable scrap materials and surplus items that can be repurposed or recycled.",
-                    ImageUrl = "/img/scrap/scrapMetal.png"
-                }
-            };
         }
 
         public IActionResult About()
