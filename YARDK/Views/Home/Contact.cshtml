@@ -2,6 +2,9 @@
     ViewData["Title"] = "Contact us";
 }
 
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+}
 
 <!-- Modal Search Start -->
 <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -96,23 +99,24 @@
                     <div class="row g-4">
                         <div class="col-lg-12 col-xl-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control" id="name" name="Name" placeholder="Your Name" required>
+                                <input type="text" class="form-control" id="name" name="Name" placeholder="Your Name" required minlength="2">
                                 <label for="name">
                                     <span class="en-text">Your Name</span>
                                     <span class="ar-text d-none">الاسم</span>
+                                    <span class="text-danger">*</span>
                                 </label>
                                 <div class="invalid-feedback">
-                                    <span class="en-text">Please enter your name</span>
-                                    <span class="ar-text d-none">الرجاء إدخال الاسم</span>
+                                    <span class="en-text">Please enter your name (minimum 2 characters)</span>
+                                    <span class="ar-text d-none">الرجاء إدخال الاسم (حد أدنى حرفين)</span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-12 col-xl-6">
                             <div class="form-floating">
-                                <input type="email" class="form-control" id="email" name="Email" placeholder="Your Email" required>
+                                <input type="email" class="form-control" id="email" name="Email" placeholder="Your Email">
                                 <label for="email">
-                                    <span class="en-text">Your Email</span>
-                                    <span class="ar-text d-none">البريد الإلكتروني</span>
+                                    <span class="en-text">Your Email (Optional)</span>
+                                    <span class="ar-text d-none">البريد الإلكتروني (اختياري)</span>
                                 </label>
                                 <div class="invalid-feedback">
                                     <span class="en-text">Please enter a valid email address</span>
@@ -122,27 +126,29 @@
                         </div>
                         <div class="col-12">
                             <div class="form-floating">
-                                <input type="text" class="form-control" id="subject" name="Subject" placeholder="Subject" required>
+                                <input type="text" class="form-control" id="subject" name="Subject" placeholder="Subject" required minlength="3">
                                 <label for="subject">
                                     <span class="en-text">Subject</span>
                                     <span class="ar-text d-none">الموضوع</span>
+                                    <span class="text-danger">*</span>
                                 </label>
                                 <div class="invalid-feedback">
-                                    <span class="en-text">Please enter a subject</span>
-                                    <span class="ar-text d-none">الرجاء إدخال الموضوع</span>
+                                    <span class="en-text">Please enter a subject (minimum 3 characters)</span>
+                                    <span class="ar-text d-none">الرجاء إدخال الموضوع (حد أدنى 3 أحرف)</span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-floating">
-                                <textarea class="form-control" placeholder="Leave a message here" id="message" name="Message" style="height: 160px" required></textarea>
+                                <textarea class="form-control" placeholder="Leave a message here" id="message" name="Message" style="height: 160px" required minlength="10"></textarea>
                                 <label for="message">
                                     <span class="en-text">Message</span>
                                     <span class="ar-text d-none">الرسالة</span>
+                                    <span class="text-danger">*</span>
                                 </label>
                                 <div class="invalid-feedback">
-                                    <span class="en-text">Please enter your message</span>
-                                    <span class="ar-text d-none">الرجاء إدخال الرسالة</span>
+                                    <span class="en-text">Please enter your message (minimum 10 characters)</span>
+                                    <span class="ar-text d-none">الرجاء إدخال الرسالة (حد أدنى 10 أحرف)</span>
                                 </div>
                             </div>
                         </div>
@@ -171,6 +177,7 @@
 <!-- Contact End -->
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
     <script>
         $(document).ready(function() {
             // Language switch handling
@@ -189,66 +196,108 @@
                 updateLanguage();
             });
 
-            // Form validation
-            const form = document.getElementById('contactForm');
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            });
-
-            // Handle form submission
+            // Form validation and submission
             $('#contactForm').on('submit', function(e) {
                 e.preventDefault();
                 
-                if (!this.checkValidity()) {
-                    return;
+                const form = this;
+                const isArabic = localStorage.getItem('language') === 'ar';
+
+                // التحقق من صحة النموذج
+                if (!form.checkValidity()) {
+                    e.stopPropagation();
+                    $(form).addClass('was-validated');
+                    return false;
                 }
 
-                const formData = $(this).serialize();
-                
+                // عرض مؤشر التحميل
+                const submitBtn = $(form).find('button[type="submit"]');
+                const originalBtnText = submitBtn.html();
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + 
+                             (isArabic ? 'جاري الإرسال...' : 'Sending...'));
+
+                // إرسال البيانات
                 $.ajax({
-                    url: $(this).attr('action'),
+                    url: form.action,
                     type: 'POST',
-                    data: formData,
+                    data: $(form).serialize(),
                     success: function(response) {
                         if (response.success) {
+                            // رسالة النجاح
                             Swal.fire({
-                                title: localStorage.getItem('language') === 'ar' ? 'تم الإرسال بنجاح' : 'Message Sent',
-                                text: localStorage.getItem('language') === 'ar' ? 
-                                    'شكراً لتواصلكم معنا. سنقوم بالرد عليكم في أقرب وقت ممكن.' : 
-                                    'Thank you for contacting us. We will get back to you as soon as possible.',
+                                title: isArabic ? 'تم الإرسال بنجاح' : 'Message Sent Successfully',
+                                text: isArabic ? 'شكراً لتواصلك معنا. سنقوم بالرد عليك في أقرب وقت ممكن.' : 
+                                               'Thank you for contacting us. We will get back to you as soon as possible.',
                                 icon: 'success',
-                                confirmButtonText: localStorage.getItem('language') === 'ar' ? 'حسناً' : 'OK'
+                                confirmButtonText: isArabic ? 'حسناً' : 'OK',
+                                customClass: {
+                                    popup: isArabic ? 'swal2-rtl' : '',
+                                    title: isArabic ? 'swal2-arabic-font' : '',
+                                    confirmButton: isArabic ? 'swal2-arabic-font' : ''
+                                }
                             }).then(() => {
-                                $('#contactForm')[0].reset();
-                                $('#contactForm').removeClass('was-validated');
+                                // إعادة تعيين النموذج
+                                form.reset();
+                                $(form).removeClass('was-validated');
                             });
                         } else {
+                            // رسالة خطأ
                             Swal.fire({
-                                title: localStorage.getItem('language') === 'ar' ? 'خطأ' : 'Error',
-                                text: response.message || (localStorage.getItem('language') === 'ar' ? 
-                                    'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.' : 
-                                    'An error occurred while sending the message. Please try again.'),
+                                title: isArabic ? 'خطأ' : 'Error',
+                                text: response.message || (isArabic ? 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.' : 
+                                                                    'An error occurred while sending the message. Please try again.'),
                                 icon: 'error',
-                                confirmButtonText: localStorage.getItem('language') === 'ar' ? 'حسناً' : 'OK'
+                                confirmButtonText: isArabic ? 'حسناً' : 'OK',
+                                customClass: {
+                                    popup: isArabic ? 'swal2-rtl' : '',
+                                    title: isArabic ? 'swal2-arabic-font' : '',
+                                    confirmButton: isArabic ? 'swal2-arabic-font' : ''
+                                }
                             });
                         }
                     },
-                    error: function() {
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        // رسالة خطأ الاتصال
                         Swal.fire({
-                            title: localStorage.getItem('language') === 'ar' ? 'خطأ' : 'Error',
-                            text: localStorage.getItem('language') === 'ar' ? 
-                                'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.' : 
-                                'An error occurred while sending the message. Please try again.',
+                            title: isArabic ? 'خطأ' : 'Error',
+                            text: isArabic ? 'حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.' : 
+                                           'Server connection error. Please try again.',
                             icon: 'error',
-                            confirmButtonText: localStorage.getItem('language') === 'ar' ? 'حسناً' : 'OK'
+                            confirmButtonText: isArabic ? 'حسناً' : 'OK',
+                            customClass: {
+                                popup: isArabic ? 'swal2-rtl' : '',
+                                title: isArabic ? 'swal2-arabic-font' : '',
+                                confirmButton: isArabic ? 'swal2-arabic-font' : ''
+                            }
                         });
+                    },
+                    complete: function() {
+                        // إعادة تفعيل زر الإرسال
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html(originalBtnText);
                     }
                 });
+
+                return false;
             });
         });
     </script>
+
+    <style>
+        .swal2-rtl {
+            direction: rtl !important;
+        }
+        .swal2-arabic-font {
+            font-family: 'Cairo', sans-serif !important;
+        }
+        .spinner-border {
+            margin-right: 5px;
+        }
+        [dir="rtl"] .spinner-border {
+            margin-right: 0;
+            margin-left: 5px;
+        }
+    </style>
 }
