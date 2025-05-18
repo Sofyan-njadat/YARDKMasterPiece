@@ -89,21 +89,38 @@
 						<div class="d-flex justify-content-between mb-2">
 							<span>Status:</span>
 							<span>
-								@if (Model.Status == "Pending")
+								@switch (Model.Status)
 								{
-									<span class="badge bg-warning">@Model.Status</span>
-								}
-								else if (Model.Status == "Completed")
-								{
-									<span class="badge bg-success">@Model.Status</span>
-								}
-								else if (Model.Status == "Cancelled")
-								{
-									<span class="badge bg-danger">@Model.Status</span>
-								}
-								else
-								{
-									<span class="badge bg-secondary">@Model.Status</span>
+									case "Pending":
+										<span class="badge bg-warning">
+											<span class="en-text">Pending</span>
+											<span class="ar-text d-none">قيد الانتظار</span>
+										</span>
+										break;
+									case "Processing":
+										<span class="badge bg-info">
+											<span class="en-text">Processing</span>
+											<span class="ar-text d-none">قيد المعالجة</span>
+										</span>
+										break;
+									case "Delivered":
+										<span class="badge bg-success">
+											<span class="en-text">Delivered</span>
+											<span class="ar-text d-none">تم التوصيل</span>
+										</span>
+										break;
+									case "Cancelled":
+										<span class="badge bg-danger">
+											<span class="en-text">Cancelled</span>
+											<span class="ar-text d-none">ملغي</span>
+										</span>
+										break;
+									default:
+										<span class="badge bg-secondary">
+											<span class="en-text">@Model.Status</span>
+											<span class="ar-text d-none">@Model.Status</span>
+										</span>
+										break;
 								}
 							</span>
 						</div>
@@ -114,17 +131,19 @@
 						<div class="d-flex justify-content-between mb-2">
 							<span>Payment Status:</span>
 							<span>
-								@if (Model.PaymentStatus == "Pending")
+								@if (Model.Payments != null && Model.Payments.Any(p => p.PaymentStatus == "Paid"))
 								{
-									<span class="badge bg-warning">@Model.PaymentStatus</span>
-								}
-								else if (Model.PaymentStatus == "Completed")
-								{
-									<span class="badge bg-success">@Model.PaymentStatus</span>
+									<span class="badge bg-success">
+										<span class="en-text">Paid</span>
+										<span class="ar-text d-none">مدفوع</span>
+									</span>
 								}
 								else
 								{
-									<span class="badge bg-secondary">@Model.PaymentStatus</span>
+									<span class="badge bg-warning">
+										<span class="en-text">Pending</span>
+										<span class="ar-text d-none">معلقة</span>
+									</span>
 								}
 							</span>
 						</div>
@@ -152,4 +171,71 @@
 			</div>
 		</div>
 	</div>
-</div> 
+</div>
+
+<style>
+	/* Status Badge Styling */
+	.badge {
+		padding: 8px 12px;
+		font-size: 0.85rem;
+		font-weight: 500;
+		border-radius: 4px;
+	}
+
+	.bg-warning {
+		background-color: #ffc107 !important;
+		color: #000 !important;
+	}
+
+	.bg-info {
+		background-color: #0dcaf0 !important;
+		color: #fff !important;
+	}
+
+	.bg-success {
+		background-color: #198754 !important;
+		color: #fff !important;
+	}
+
+	.bg-danger {
+		background-color: #dc3545 !important;
+		color: #fff !important;
+	}
+
+	.bg-secondary {
+		background-color: #6c757d !important;
+		color: #fff !important;
+	}
+
+	/* Arabic Text Support */
+	.ar-text {
+		font-family: 'Cairo', sans-serif;
+	}
+
+	/* RTL Support for Arabic */
+	[dir="rtl"] .badge {
+		font-family: 'Cairo', sans-serif;
+	}
+</style>
+
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			// Language switch handling
+			function updateLanguage() {
+				const isArabic = localStorage.getItem('language') === 'ar';
+				$('.en-text').toggleClass('d-none', isArabic);
+				$('.ar-text').toggleClass('d-none', !isArabic);
+				$('html').attr('dir', isArabic ? 'rtl' : 'ltr');
+			}
+
+			// Initial language setup
+			updateLanguage();
+
+			// Listen for language changes
+			$(document).on('languageChanged', function() {
+				updateLanguage();
+			});
+		});
+	</script>
+} 

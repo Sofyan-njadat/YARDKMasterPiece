@@ -208,6 +208,13 @@ namespace YARDK.Controllers
                         return View(model);
                     }
 
+                    // التحقق من حالة المستخدم - معالجة القيمة القابلة للإلغاء
+                    if (user.IsActive == false)
+                    {
+                        ModelState.AddModelError("", "تم حظر حسابك. يرجى التواصل مع الإدارة للمزيد من المعلومات.");
+                        return View(model);
+                    }
+
                     // التحقق من كلمة المرور
                     if (user.Password != password)
                     {
@@ -577,8 +584,9 @@ namespace YARDK.Controllers
                 // الحصول على معرف المستخدم من الكوكيز
                 int userId = int.Parse(Request.Cookies["UserId"]);
 
-                // الحصول على طلبات المستخدم
+                // الحصول على طلبات المستخدم مع تضمين بيانات الدفع
                 var orders = await _context.Orders
+                    .Include(o => o.Payments)  // تضمين بيانات الدفع
                     .Where(o => o.UserId == userId)
                     .OrderByDescending(o => o.CreatedAt)
                     .ToListAsync();
@@ -611,10 +619,11 @@ namespace YARDK.Controllers
                 // الحصول على معرف المستخدم من الكوكيز
                 int userId = int.Parse(Request.Cookies["UserId"]);
 
-                // الحصول على تفاصيل الطلب
+                // الحصول على تفاصيل الطلب مع تضمين بيانات الدفع
                 var order = await _context.Orders
                     .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(oi => oi.Product)
+                    .Include(o => o.Payments)  // تضمين بيانات الدفع
                     .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
 
                 if (order == null)

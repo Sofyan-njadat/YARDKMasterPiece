@@ -53,33 +53,56 @@
             <div class="d-flex flex-column h-100">
                 <div class="navbar-nav w-100 mt-3">
                     <a asp-controller="Admin" asp-action="Dashboard" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")">
-                        <i class="fas fa-tachometer-alt me-2"></i><span class="nav-text en-text">Dashboard</span><span class="nav-text ar-text d-none">لوحة التحكم</span>
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        <span class="nav-text en-text">Dashboard</span>
+                        <span class="nav-text ar-text d-none">لوحة التحكم</span>
                     </a>
                     <a asp-controller="Admin" asp-action="Categories" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Categories" || ViewContext.RouteData.Values["Action"].ToString() == "CreateCategory" || ViewContext.RouteData.Values["Action"].ToString() == "EditCategory" || ViewContext.RouteData.Values["Action"].ToString() == "DeleteCategory" ? "active" : "")">
-                        <i class="fas fa-list me-2"></i><span class="nav-text en-text">Categories</span><span class="nav-text ar-text d-none">الفئات</span>
+                        <i class="fas fa-list me-2"></i>
+                        <span class="nav-text en-text">Categories</span>
+                        <span class="nav-text ar-text d-none">الفئات</span>
                     </a>
                     <a asp-controller="Product" asp-action="AllProducts" class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Product" && ViewContext.RouteData.Values["Action"].ToString() == "AllProducts" ? "active" : "")">
-                        <i class="fas fa-box me-2"></i><span class="nav-text en-text">All Products</span><span class="nav-text ar-text d-none">جميع المنتجات</span>
+                        <i class="fas fa-box me-2"></i>
+                        <span class="nav-text en-text">All Products</span>
+                        <span class="nav-text ar-text d-none">جميع المنتجات</span>
                     </a>
                     <a asp-controller="Admin" asp-action="Users" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Users" ? "active" : "")">
-                        <i class="fas fa-users me-2"></i><span class="nav-text en-text">Users</span><span class="nav-text ar-text d-none">المستخدمين</span>
+                        <i class="fas fa-users me-2"></i>
+                        <span class="nav-text en-text">Users</span>
+                        <span class="nav-text ar-text d-none">المستخدمين</span>
                     </a>
                     <a asp-controller="Admin" asp-action="BlockedUsers" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "BlockedUsers" ? "active" : "")">
-                        <i class="fas fa-user-slash me-2"></i><span class="nav-text en-text">Blocked Users</span><span class="nav-text ar-text d-none">المستخدمين المحظورين</span>
+                        <i class="fas fa-user-slash me-2"></i>
+                        <span class="nav-text en-text">Blocked Users</span>
+                        <span class="nav-text ar-text d-none">المستخدمين المحظورين</span>
                     </a>
                     <a asp-controller="Admin" asp-action="Admins" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Admins" ? "active" : "")">
-                        <i class="fas fa-user-shield me-2"></i><span class="nav-text en-text">Admins</span><span class="nav-text ar-text d-none">المسؤولين</span>
+                        <i class="fas fa-user-shield me-2"></i>
+                        <span class="nav-text en-text">Admins</span>
+                        <span class="nav-text ar-text d-none">المسؤولين</span>
                     </a>
                     <a asp-controller="Admin" asp-action="Orders" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Orders" ? "active" : "")">
-                        <i class="fas fa-shopping-cart me-2"></i><span class="nav-text en-text">Orders Management</span><span class="nav-text ar-text d-none">إدارة الطلبات</span>
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        <span class="nav-text en-text">Orders Management</span>
+                        <span class="nav-text ar-text d-none">إدارة الطلبات</span>
+                    </a>
+                    <a asp-controller="Admin" asp-action="Feedbacks" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Feedbacks" ? "active" : "")">
+                        <i class="fas fa-comments me-2"></i>
+                        <span class="nav-text en-text">Feedbacks</span>
+                        <span class="nav-text ar-text d-none">الرسائل</span>
                     </a>
                 </div>
                 <div class="mt-auto mb-4 mx-4">
                     <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary w-100 mb-3">
-                        <i class="fas fa-home me-2"></i><span class="en-text">View Website</span><span class="ar-text d-none">عرض الموقع</span>
+                        <i class="fas fa-home me-2"></i>
+                        <span class="en-text">View Website</span>
+                        <span class="ar-text d-none">عرض الموقع</span>
                     </a>
                     <a asp-controller="User" asp-action="Logout" class="btn btn-outline-danger w-100">
-                        <i class="fas fa-sign-out-alt me-2"></i><span class="en-text">Logout</span><span class="ar-text d-none">تسجيل الخروج</span>
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        <span class="en-text">Logout</span>
+                        <span class="ar-text d-none">تسجيل الخروج</span>
                     </a>
                 </div>
             </div>
@@ -96,10 +119,11 @@
                     </a>
                 </div>
                 
-                <!-- Language Switcher Button - Always on the opposite side -->
+                <!-- Language Switcher Button -->
                 <div class="language-switcher ms-auto">
                     <button class="btn lang-btn" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position: fixed; right: 20px; margin-top: 2%; z-index: 1000; background-color: #FFC107;">
-                        <i class="fas fa-language me-2"></i><span class="current-lang">العربية</span>
+                        <i class="fas fa-language me-2"></i>
+                        <span class="current-lang">العربية</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown" style="right: 20px; top: 60px; position: fixed;">
                         <li><a class="dropdown-item" href="#" data-lang="ar">العربية</a></li>
@@ -114,8 +138,6 @@
                 @RenderBody()
             </div>
             <!-- Main Content End -->
-
-
         </div>
         <!-- Content End -->
     </div>
@@ -132,6 +154,43 @@
     <!-- Template Javascript -->
     <script src="~/js/main.js"></script>
     <script src="~/js/admin.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // تحديث اللغة عند تحميل الصفحة
+            function updateLanguage() {
+                const currentLang = localStorage.getItem('language') || 'en';
+                const isArabic = currentLang === 'ar';
+                
+                // تحديث اتجاه الصفحة
+                $('html').attr('dir', isArabic ? 'rtl' : 'ltr');
+                
+                // تحديث النصوص
+                $('.en-text').toggleClass('d-none', isArabic);
+                $('.ar-text').toggleClass('d-none', !isArabic);
+                
+                // تحديث نص زر تغيير اللغة
+                $('.current-lang').text(isArabic ? 'العربية' : 'English');
+            }
+
+            // تحديث اللغة عند تحميل الصفحة
+            updateLanguage();
+
+            // تحديث اللغة عند النقر على زر تغيير اللغة
+            $('.dropdown-item').on('click', function(e) {
+                e.preventDefault();
+                const lang = $(this).data('lang');
+                localStorage.setItem('language', lang);
+                updateLanguage();
+                $(document).trigger('languageChanged');
+            });
+
+            // منع إعادة تحميل الصفحة عند النقر على الروابط
+            $('a[href="#"]').on('click', function(e) {
+                e.preventDefault();
+            });
+        });
+    </script>
     
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -817,5 +817,65 @@ namespace YARDK.Controllers
                 });
             }
         }
+
+        [HttpGet]
+        public IActionResult Feedbacks()
+        {
+            var feedbacks = _context.Feedbacks.ToList();
+            return View(feedbacks);
+        }
+
+        [HttpGet]
+        public IActionResult GetFeedback(int id)
+        {
+            try
+            {
+                var feedback = _context.Feedbacks.Find(id);
+                if (feedback == null)
+                {
+                    return Json(new { success = false, message = "Feedback not found" });
+                }
+
+                return Json(new { 
+                    success = true, 
+                    data = new { 
+                        name = feedback.Name,
+                        email = feedback.Email,
+                        subject = feedback.Subject,
+                        message = feedback.Message,
+                        createdAt = feedback.CreatedAt
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving feedback");
+                return Json(new { success = false, message = "An error occurred while retrieving the feedback" });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteFeedback(int id)
+        {
+            try
+            {
+                var feedback = _context.Feedbacks.Find(id);
+                if (feedback == null)
+                {
+                    return Json(new { success = false, message = "Feedback not found" });
+                }
+
+                _context.Feedbacks.Remove(feedback);
+                _context.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting feedback");
+                return Json(new { success = false, message = "An error occurred while deleting the feedback" });
+            }
+        }
     }
 } 

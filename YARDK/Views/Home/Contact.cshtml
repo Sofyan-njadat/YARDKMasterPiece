@@ -88,38 +88,69 @@
             </div>
             <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.3">
                 <div class="sub-style">
-                    <h5 class="sub-title text-primary pe-3">Let’s Connect</h5>
+                    <h5 class="sub-title text-primary pe-3">Let's Connect</h5>
                 </div>
                 <h1 class="display-5 mb-4">Send Your Message</h1>
-                <form>
+                <form id="contactForm" method="post" action="@Url.Action("Contact", "Home")" class="needs-validation" novalidate>
+                    @Html.AntiForgeryToken()
                     <div class="row g-4">
                         <div class="col-lg-12 col-xl-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control" id="name" placeholder="Your Name">
-                                <label for="name">Your Name</label>
+                                <input type="text" class="form-control" id="name" name="Name" placeholder="Your Name" required>
+                                <label for="name">
+                                    <span class="en-text">Your Name</span>
+                                    <span class="ar-text d-none">الاسم</span>
+                                </label>
+                                <div class="invalid-feedback">
+                                    <span class="en-text">Please enter your name</span>
+                                    <span class="ar-text d-none">الرجاء إدخال الاسم</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-12 col-xl-6">
                             <div class="form-floating">
-                                <input type="email" class="form-control" id="email" placeholder="Your Email">
-                                <label for="email">Your Email</label>
+                                <input type="email" class="form-control" id="email" name="Email" placeholder="Your Email" required>
+                                <label for="email">
+                                    <span class="en-text">Your Email</span>
+                                    <span class="ar-text d-none">البريد الإلكتروني</span>
+                                </label>
+                                <div class="invalid-feedback">
+                                    <span class="en-text">Please enter a valid email address</span>
+                                    <span class="ar-text d-none">الرجاء إدخال بريد إلكتروني صحيح</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-floating">
-                                <input type="text" class="form-control" id="subject" placeholder="Subject">
-                                <label for="subject">Subject</label>
+                                <input type="text" class="form-control" id="subject" name="Subject" placeholder="Subject" required>
+                                <label for="subject">
+                                    <span class="en-text">Subject</span>
+                                    <span class="ar-text d-none">الموضوع</span>
+                                </label>
+                                <div class="invalid-feedback">
+                                    <span class="en-text">Please enter a subject</span>
+                                    <span class="ar-text d-none">الرجاء إدخال الموضوع</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-floating">
-                                <textarea class="form-control" placeholder="Leave a message here" id="message"
-                                          style="height: 160px"></textarea>
-                                <label for="message">Message</label>
+                                <textarea class="form-control" placeholder="Leave a message here" id="message" name="Message" style="height: 160px" required></textarea>
+                                <label for="message">
+                                    <span class="en-text">Message</span>
+                                    <span class="ar-text d-none">الرسالة</span>
+                                </label>
+                                <div class="invalid-feedback">
+                                    <span class="en-text">Please enter your message</span>
+                                    <span class="ar-text d-none">الرجاء إدخال الرسالة</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12">
-                            <button class="btn btn-primary w-100 py-3">Send Message</button>
+                            <button type="submit" class="btn btn-primary w-100 py-3">
+                                <span class="en-text">Send Message</span>
+                                <span class="ar-text d-none">إرسال الرسالة</span>
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -138,3 +169,86 @@
     </div>
 </div>
 <!-- Contact End -->
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Language switch handling
+            function updateLanguage() {
+                const isArabic = localStorage.getItem('language') === 'ar';
+                $('.en-text').toggleClass('d-none', isArabic);
+                $('.ar-text').toggleClass('d-none', !isArabic);
+                $('html').attr('dir', isArabic ? 'rtl' : 'ltr');
+            }
+
+            // Initial language setup
+            updateLanguage();
+
+            // Listen for language changes
+            $(document).on('languageChanged', function() {
+                updateLanguage();
+            });
+
+            // Form validation
+            const form = document.getElementById('contactForm');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Handle form submission
+            $('#contactForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (!this.checkValidity()) {
+                    return;
+                }
+
+                const formData = $(this).serialize();
+                
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: localStorage.getItem('language') === 'ar' ? 'تم الإرسال بنجاح' : 'Message Sent',
+                                text: localStorage.getItem('language') === 'ar' ? 
+                                    'شكراً لتواصلكم معنا. سنقوم بالرد عليكم في أقرب وقت ممكن.' : 
+                                    'Thank you for contacting us. We will get back to you as soon as possible.',
+                                icon: 'success',
+                                confirmButtonText: localStorage.getItem('language') === 'ar' ? 'حسناً' : 'OK'
+                            }).then(() => {
+                                $('#contactForm')[0].reset();
+                                $('#contactForm').removeClass('was-validated');
+                            });
+                        } else {
+                            Swal.fire({
+                                title: localStorage.getItem('language') === 'ar' ? 'خطأ' : 'Error',
+                                text: response.message || (localStorage.getItem('language') === 'ar' ? 
+                                    'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.' : 
+                                    'An error occurred while sending the message. Please try again.'),
+                                icon: 'error',
+                                confirmButtonText: localStorage.getItem('language') === 'ar' ? 'حسناً' : 'OK'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            title: localStorage.getItem('language') === 'ar' ? 'خطأ' : 'Error',
+                            text: localStorage.getItem('language') === 'ar' ? 
+                                'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.' : 
+                                'An error occurred while sending the message. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: localStorage.getItem('language') === 'ar' ? 'حسناً' : 'OK'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -80,6 +80,35 @@ namespace YARDK.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Contact(Feedback feedback)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    feedback.CreatedAt = DateTime.Now;
+                    _context.Feedbacks.Add(feedback);
+                    await _context.SaveChangesAsync();
+
+                    return Json(new { success = true });
+                }
+
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return Json(new { success = false, message = string.Join(", ", errors) });
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                return Json(new { success = false, message = "An error occurred while processing your request." });
+            }
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

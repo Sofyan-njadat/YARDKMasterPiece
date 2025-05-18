@@ -67,35 +67,46 @@
                                                 <td>@order.OrderNumber</td>
                                                 <td>@order.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
                                                 <td>
-                                                    @if (order.Status == "Pending")
-                                                    {
-                                                        <span class="badge bg-warning">@order.Status</span>
-                                                    }
-                                                    else if (order.Status == "Completed")
-                                                    {
-                                                        <span class="badge bg-success">@order.Status</span>
-                                                    }
-                                                    else if (order.Status == "Cancelled")
-                                                    {
-                                                        <span class="badge bg-danger">@order.Status</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-secondary">@order.Status</span>
-                                                    }
+                                                    <span class="badge @GetOrderStatusClass(order.Status)">
+                                                        @switch (order.Status)
+                                                        {
+                                                            case "Pending":
+                                                                <span class="en-text">Pending</span>
+                                                                <span class="ar-text d-none">قيد الانتظار</span>
+                                                                break;
+                                                            case "Processing":
+                                                                <span class="en-text">Processing</span>
+                                                                <span class="ar-text d-none">قيد المعالجة</span>
+                                                                break;
+                                                            case "Delivered":
+                                                                <span class="en-text">Delivered</span>
+                                                                <span class="ar-text d-none">تم التوصيل</span>
+                                                                break;
+                                                            case "Cancelled":
+                                                                <span class="en-text">Cancelled</span>
+                                                                <span class="ar-text d-none">ملغي</span>
+                                                                break;
+                                                            default:
+                                                                <span class="en-text">@order.Status</span>
+                                                                <span class="ar-text d-none">@order.Status</span>
+                                                                break;
+                                                        }
+                                                    </span>
                                                 </td>
                                                 <td>
-                                                    @if (order.PaymentStatus == "Completed")
+                                                    @if (order.Payments != null && order.Payments.Any(p => p.PaymentStatus == "Paid"))
                                                     {
-                                                        <span class="badge bg-success">@order.PaymentStatus</span>
-                                                    }
-                                                    else if (order.PaymentStatus == "Pending")
-                                                    {
-                                                        <span class="badge bg-warning">@order.PaymentStatus</span>
+                                                        <span class="badge bg-success">
+                                                            <span class="en-text">Paid</span>
+                                                            <span class="ar-text d-none">مدفوع</span>
+                                                        </span>
                                                     }
                                                     else
                                                     {
-                                                        <span class="badge bg-secondary">@order.PaymentStatus</span>
+                                                        <span class="badge bg-warning">
+                                                            <span class="en-text">Pending</span>
+                                                            <span class="ar-text d-none">معلقة</span>
+                                                        </span>
                                                     }
                                                 </td>
                                                 <td>JD @order.TotalAmount.ToString("F2")</td>
@@ -127,6 +138,20 @@
 		</div>
 	</div>
 </div>
+
+@functions {
+    string GetOrderStatusClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-warning",
+            "Processing" => "bg-info",
+            "Delivered" => "bg-success",
+            "Cancelled" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
 
 <style>
 	/*** Taps Start ***/
@@ -172,6 +197,49 @@
     .table th {
         font-weight: 600;
     }
+
+    /* Status Badge Styling */
+    .badge {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+        color: #000 !important;
+    }
+
+    .bg-info {
+        background-color: #0dcaf0 !important;
+        color: #fff !important;
+    }
+
+    .bg-success {
+        background-color: #198754 !important;
+        color: #fff !important;
+    }
+
+    .bg-danger {
+        background-color: #dc3545 !important;
+        color: #fff !important;
+    }
+
+    .bg-secondary {
+        background-color: #6c757d !important;
+        color: #fff !important;
+    }
+
+    /* Arabic Text Support */
+    .ar-text {
+        font-family: 'Cairo', sans-serif;
+    }
+
+    /* RTL Support for Arabic */
+    [dir="rtl"] .badge {
+        font-family: 'Cairo', sans-serif;
+    }
 </style>
 
 @section Scripts {
@@ -185,6 +253,31 @@
 					$(this).addClass('active');
 				}
 			});
+
+            // Debug payment status
+            console.log('Orders data:', @Html.Raw(Json.Serialize(Model.Select(o => new {
+                OrderNumber = o.OrderNumber,
+                Payments = o.Payments.Select(p => new {
+                    Status = p.PaymentStatus,
+                    Amount = p.Amount
+                })
+            }))));
+
+            // Language switch handling
+            function updateLanguage() {
+                const isArabic = localStorage.getItem('language') === 'ar';
+                $('.en-text').toggleClass('d-none', isArabic);
+                $('.ar-text').toggleClass('d-none', !isArabic);
+                $('html').attr('dir', isArabic ? 'rtl' : 'ltr');
+            }
+
+            // Initial language setup
+            updateLanguage();
+
+            // Listen for language changes
+            $(document).on('languageChanged', function() {
+                updateLanguage();
+            });
 		});
 	</script>
 }
