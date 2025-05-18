@@ -247,8 +247,10 @@
         .swal2-title-arabic,
         .swal2-html-container-arabic {
             direction: rtl;
-            text-align: right;
+            text-align: center !important;
             font-family: 'Cairo', sans-serif !important;
+            width: 100% !important;
+            margin: 0 auto !important;
         }
 
         /* Arabic button styles */
@@ -261,7 +263,6 @@
         [lang="ar"] .swal2-popup,
         .swal2-popup-arabic {
             direction: rtl;
-            text-align: right;
         }
 
         /* Arabic font for SweetAlert */
@@ -269,15 +270,38 @@
             font-family: 'Cairo', sans-serif !important;
         }
 
-        /* Ensure proper text alignment in SweetAlert */
+        /* Center text in SweetAlert */
         .swal2-popup-arabic .swal2-title,
         .swal2-popup-arabic .swal2-html-container {
-            text-align: right !important;
+            text-align: center !important;
+            margin: 0 auto !important;
+            width: 100% !important;
         }
 
         /* Ensure proper button alignment in SweetAlert */
         .swal2-popup-arabic .swal2-actions {
             flex-direction: row-reverse !important;
+            justify-content: center !important;
+        }
+
+        /* Center the content container */
+        .swal2-popup-arabic .swal2-content {
+            text-align: center !important;
+            margin: 0 auto !important;
+        }
+
+        /* Ensure proper spacing */
+        .swal2-popup-arabic .swal2-title {
+            margin-bottom: 1em !important;
+        }
+
+        .swal2-popup-arabic .swal2-html-container {
+            margin: 1em 0 !important;
+        }
+
+        /* Center the icon */
+        .swal2-popup-arabic .swal2-icon {
+            margin: 0 auto !important;
         }
     </style>
 }
@@ -377,20 +401,36 @@
                         let paymentsHtml = '';
                         order.payments.forEach(payment => {
                             paymentsHtml += `
-                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
                                     <div>
                                         <strong>${payment.paymentMethod}</strong>
                                         <br>
                                         <small class="text-muted">
                                             ${new Date(payment.paymentDate).toLocaleString()}
                                         </small>
+                                        <br>
+                                        <small class="text-muted">
+                                            <span class="en-text">Transaction ID:</span>
+                                            <span class="ar-text d-none">رقم العملية:</span>
+                                            ${payment.transactionId}
+                                        </small>
                                     </div>
-                                    <div>
-                                        <span class="badge ${payment.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'}">
-                                            ${payment.paymentStatus}
+                                    <div class="text-end">
+                                        <span class="badge ${payment.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'} mb-2">
+                                            ${payment.paymentStatus === 'Paid' ? 
+                                                '<span class="en-text">Paid</span><span class="ar-text d-none">مدفوع</span>' : 
+                                                '<span class="en-text">Pending</span><span class="ar-text d-none">قيد الانتظار</span>'}
                                         </span>
                                         <br>
                                         <strong>JD ${payment.amount.toFixed(2)}</strong>
+                                        ${payment.paymentStatus !== 'Paid' ? `
+                                            <br>
+                                            <button class="btn btn-sm btn-success mt-2" onclick="updatePaymentStatus(${payment.id}, 'Paid')">
+                                                <i class="fas fa-check me-1"></i>
+                                                <span class="en-text">Mark as Paid</span>
+                                                <span class="ar-text d-none">تحديد كمدفوع</span>
+                                            </button>
+                                        ` : ''}
                                     </div>
                                 </div>
                             `;
@@ -586,6 +626,103 @@
                                 icon: 'error',
                                 confirmButtonText: texts.okButton,
                                 direction: isArabic ? 'rtl' : 'ltr',
+                                customClass: {
+                                    popup: isArabic ? 'swal2-popup-arabic arabic-font' : '',
+                                    title: isArabic ? 'swal2-title-arabic' : '',
+                                    htmlContainer: isArabic ? 'swal2-html-container-arabic' : '',
+                                    confirmButton: isArabic ? 'swal2-confirm-button-arabic' : ''
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Update payment status
+        function updatePaymentStatus(paymentId, newStatus) {
+            const isArabic = getCurrentLanguage() === 'ar';
+            const texts = {
+                confirmTitle: isArabic ? 'تأكيد تحديث حالة الدفع' : 'Confirm Payment Status Update',
+                confirmText: isArabic ? 'هل أنت متأكد من تحديث حالة الدفع؟' : 'Are you sure you want to update the payment status?',
+                confirmButton: isArabic ? 'نعم، قم بالتحديث' : 'Yes, update it',
+                cancelButton: isArabic ? 'إلغاء' : 'Cancel',
+                successTitle: isArabic ? 'تم التحديث!' : 'Updated!',
+                successText: isArabic ? 'تم تحديث حالة الدفع بنجاح' : 'Payment status has been updated successfully',
+                errorTitle: isArabic ? 'خطأ!' : 'Error!',
+                errorText: isArabic ? 'حدث خطأ أثناء تحديث حالة الدفع' : 'An error occurred while updating the payment status',
+                okButton: isArabic ? 'حسناً' : 'OK'
+            };
+
+            Swal.fire({
+                title: texts.confirmTitle,
+                text: texts.confirmText,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: texts.confirmButton,
+                cancelButtonText: texts.cancelButton,
+                reverseButtons: isArabic,
+                customClass: {
+                    popup: isArabic ? 'swal2-popup-arabic arabic-font' : '',
+                    title: isArabic ? 'swal2-title-arabic' : '',
+                    htmlContainer: isArabic ? 'swal2-html-container-arabic' : '',
+                    confirmButton: isArabic ? 'swal2-confirm-button-arabic' : '',
+                    cancelButton: isArabic ? 'swal2-cancel-button-arabic' : ''
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Get CSRF token
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    
+                    // Send update request
+                    $.ajax({
+                        url: '@Url.Action("UpdatePaymentStatus", "Admin")',
+                        type: 'POST',
+                        data: {
+                            paymentId: paymentId,
+                            status: newStatus,
+                            __RequestVerificationToken: token
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: texts.successTitle,
+                                    text: isArabic ? response.messageAr : response.message,
+                                    icon: 'success',
+                                    confirmButtonText: texts.okButton,
+                                    customClass: {
+                                        popup: isArabic ? 'swal2-popup-arabic arabic-font' : '',
+                                        title: isArabic ? 'swal2-title-arabic' : '',
+                                        htmlContainer: isArabic ? 'swal2-html-container-arabic' : '',
+                                        confirmButton: isArabic ? 'swal2-confirm-button-arabic' : ''
+                                    }
+                                }).then(() => {
+                                    // Reload the page to show updated status
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: texts.errorTitle,
+                                    text: isArabic ? response.messageAr : response.message,
+                                    icon: 'error',
+                                    confirmButtonText: texts.okButton,
+                                    customClass: {
+                                        popup: isArabic ? 'swal2-popup-arabic arabic-font' : '',
+                                        title: isArabic ? 'swal2-title-arabic' : '',
+                                        htmlContainer: isArabic ? 'swal2-html-container-arabic' : '',
+                                        confirmButton: isArabic ? 'swal2-confirm-button-arabic' : ''
+                                    }
+                                });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({
+                                title: texts.errorTitle,
+                                text: texts.errorText,
+                                icon: 'error',
+                                confirmButtonText: texts.okButton,
                                 customClass: {
                                     popup: isArabic ? 'swal2-popup-arabic arabic-font' : '',
                                     title: isArabic ? 'swal2-title-arabic' : '',

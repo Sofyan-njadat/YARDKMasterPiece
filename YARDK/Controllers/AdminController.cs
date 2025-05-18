@@ -768,5 +768,54 @@ namespace YARDK.Controllers
                 });
             }
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePaymentStatus(int paymentId, string status)
+        {
+            try
+            {
+                var payment = await _context.Payments
+                    .Include(p => p.Order)
+                    .FirstOrDefaultAsync(p => p.Id == paymentId);
+
+                if (payment == null)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Payment not found",
+                        messageAr = "لم يتم العثور على الدفعة"
+                    });
+                }
+
+                // Update payment status
+                payment.PaymentStatus = status;
+                payment.LastUpdated = DateTime.Now;
+
+                // If payment is marked as paid, update order payment status
+                if (status == "Paid")
+                {
+                    payment.Order.PaymentStatus = "Paid";
+                    payment.Order.UpdatedAt = DateTime.Now;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { 
+                    success = true,
+                    message = "Payment status updated successfully",
+                    messageAr = "تم تحديث حالة الدفع بنجاح"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating payment status for payment {PaymentId}", paymentId);
+                return Json(new { 
+                    success = false, 
+                    message = "An error occurred while updating the payment status",
+                    messageAr = "حدث خطأ أثناء تحديث حالة الدفع"
+                });
+            }
+        }
     }
 } 
