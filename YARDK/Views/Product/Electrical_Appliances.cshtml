@@ -32,45 +32,48 @@
 <!-- Electrical & Appliances Start -->
 <div class="container-fluid service overflow-hidden py-5">
     <div class="container">
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="filter-box rounded p-4">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap">
-                        <div class="section-title mb-0">
-                            <h5 class="category-title">
-                                <span class="en-text">Electrical & Appliances</span>
-                                <span class="ar-text d-none">الأجهزة الكهربائية</span>
-                            </h5>
-                            <p class="items-count mb-0">
-                                <span class="en-text">Found @Model?.Count() items</span>
-                                <span class="ar-text d-none">تم العثور على @Model?.Count() منتج</span>
-                            </p>
-                        </div>
-                        <div class="d-flex gap-2 mt-2 mt-md-0">
-                            <select id="sortOrder" class="custom-select form-select form-select-sm" style="width: auto;">
-                                <option value="default" class="en-text">Default Sorting</option>
-                                <option value="default" class="ar-text d-none">الترتيب الافتراضي</option>
-                                <option value="priceAsc" class="en-text">Price: Low to High</option>
-                                <option value="priceAsc" class="ar-text d-none">السعر: من الأقل إلى الأعلى</option>
-                                <option value="priceDesc" class="en-text">Price: High to Low</option>
-                                <option value="priceDesc" class="ar-text d-none">السعر: من الأعلى إلى الأقل</option>
-                                <option value="nameAsc" class="en-text">Name: A to Z</option>
-                                <option value="nameAsc" class="ar-text d-none">الاسم: من أ إلى ي</option>
-                                <option value="nameDesc" class="en-text">Name: Z to A</option>
-                                <option value="nameDesc" class="ar-text d-none">الاسم: من ي إلى أ</option>
-                            </select>
+        @if (Model != null && Model.Any())
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="filter-box rounded p-4">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="section-title mb-0">
+                                <h5 class="category-title">
+                                    <span class="en-text">Electrical & Appliances</span>
+                                    <span class="ar-text d-none">الأجهزة الكهربائية</span>
+                                </h5>
+                                <p class="items-count mb-0">
+                                    <span class="en-text">Found @Model?.Count() items</span>
+                                    <span class="ar-text d-none">تم العثور على @Model?.Count() منتج</span>
+                                </p>
+                            </div>
+                            <div class="d-flex gap-2 mt-2 mt-md-0">
+                                <select id="sortOrder" class="custom-select form-select form-select-sm" style="width: auto;">
+                                    <option value="default" class="en-text">Default Sorting</option>
+                                    <option value="default" class="ar-text d-none">الترتيب الافتراضي</option>
+                                    <option value="priceAsc" class="en-text">Price: Low to High</option>
+                                    <option value="priceAsc" class="ar-text d-none">السعر: من الأقل إلى الأعلى</option>
+                                    <option value="priceDesc" class="en-text">Price: High to Low</option>
+                                    <option value="priceDesc" class="ar-text d-none">السعر: من الأعلى إلى الأقل</option>
+                                    <option value="nameAsc" class="en-text">Name: A to Z</option>
+                                    <option value="nameAsc" class="ar-text d-none">الاسم: من أ إلى ي</option>
+                                    <option value="nameDesc" class="en-text">Name: Z to A</option>
+                                    <option value="nameDesc" class="ar-text d-none">الاسم: من ي إلى أ</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                @TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
         }
 
         <div class="row g-4" id="productsContainer">
@@ -95,15 +98,6 @@
                                          class="card-img-top" alt="Default Image" 
                                          style="height: 250px; object-fit: cover;">
                                 }
-                                <div class="product-action">
-                                    <a asp-controller="Product" asp-action="ProductDetails" asp-route-id="@product.Id"
-                                       class="btn btn-light btn-square mx-1">
-                                        <i class="fas fa-eye text-primary"></i>
-                                    </a>
-                                    <button onclick="addToCart(@product.Id)" class="btn btn-light btn-square mx-1">
-                                        <i class="fas fa-cart-plus text-primary"></i>
-                                    </button>
-                                </div>
                             </div>
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between mb-3">
@@ -115,12 +109,16 @@
                                     <p class="card-text description-text text-muted">@product.Description</p>
                                 }
                                 <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <div class="rating">
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star-half-alt text-warning"></i>
+                                    <div class="d-flex gap-2">
+                                        <a asp-controller="Product" asp-action="ProductDetails" asp-route-id="@product.Id" class="btn btn-success">
+                                            <span class="en-text">Details</span>
+                                            <span class="ar-text d-none">تفاصيل</span>
+                                        </a>
+                                        <button onclick="addToCart(@product.Id)" class="btn btn-primary">
+                                            <i class="fas fa-cart-plus me-1"></i>
+                                            <span class="en-text">Add</span>
+                                            <span class="ar-text d-none">أضف</span>
+                                        </button>
                                     </div>
                                     <span class="badge bg-primary rounded-pill">
                                         <span class="en-text">@product.Quantity in stock</span>
@@ -134,10 +132,23 @@
             }
             else
             {
-                <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <span class="en-text">No electrical appliances found. Be the first to add one!</span>
-                        <span class="ar-text d-none">لم يتم العثور على أجهزة كهربائية. كن أول من يضيف!</span>
+                <div class="col-12">
+                    <div class="empty-state text-center py-5">
+                        <div class="empty-state-icon mb-4">
+                            <i class="fas fa-plug text-secondary" style="font-size: 5rem; opacity: 0.5;"></i>
+                        </div>
+                        <h3 class="text-muted mb-3">
+                            <span class="en-text">No Electrical Appliances Available</span>
+                            <span class="ar-text d-none">لا توجد أجهزة كهربائية متوفرة</span>
+                        </h3>
+                        <p class="text-muted mb-4">
+                            <span class="en-text">We haven't added any electrical appliances to this category yet.</span>
+                            <span class="ar-text d-none">لم نضف أي أجهزة كهربائية إلى هذه الفئة حتى الآن.</span>
+                        </p>
+                        <a href="/" class="btn btn-primary">
+                            <span class="en-text">Back to Home</span>
+                            <span class="ar-text d-none">العودة إلى الرئيسية</span>
+                        </a>
                     </div>
                 </div>
             }
@@ -279,6 +290,9 @@
             transition: all 0.3s ease-in-out;
             border-radius: 15px;
             overflow: hidden;
+            background-color: #fffdf0;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0f0f0;
         }
         
         .shadow-hover {
@@ -286,40 +300,36 @@
         }
         
         .shadow-hover:hover {
-            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-5px);
         }
 
         .product-action {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transition: all 0.5s ease;
-        }
-
-        .card:hover .product-action {
-            opacity: 1;
+            display: none;
         }
 
         .btn-square {
-            padding: 8px;
+            width: 45px;
+            height: 45px;
+            padding: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-weight: normal;
-            border-radius: 50px;
+            border-radius: 50%;
             transition: all 0.3s ease;
+            background-color: white;
+            margin: 0 5px;
+        }
+
+        .btn-square i {
+            font-size: 1.2rem;
         }
 
         .btn-square:hover {
             transform: translateY(-2px);
             background-color: var(--bs-primary) !important;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .btn-square:hover i {
@@ -459,6 +469,44 @@
             .category-title {
                 font-size: 1.25rem;
             }
+        }
+
+        .empty-state {
+            background-color: #00205b;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            color: #fff;
+        }
+
+        .empty-state h3 {
+            color: #fff;
+        }
+
+        .empty-state p {
+            color: #ddd;
+        }
+
+        .empty-state-icon {
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .empty-state-icon i {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        [dir="rtl"] .product-overlay {
+            // ... existing code ...
         }
     </style>
 }

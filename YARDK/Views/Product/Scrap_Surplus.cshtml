@@ -40,44 +40,47 @@
 <!-- Scrap & Surplus Start -->
 <div class="container-fluid service overflow-hidden py-5">
     <div class="container">
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="bg-light rounded p-4 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap">
-                        <div class="section-title mb-0">
-                            <h5 class="sub-title text-primary">
-                                <span class="en-text">Scrap & Surplus</span>
-                                <span class="ar-text d-none">الخردة والفائض</span>
-                            </h5>
-                        </div>
-                        <div class="d-flex gap-2 mt-2 mt-md-0">
-                            <select id="sortOrder" class="form-select form-select-sm" style="width: auto;">
-                                <option value="default">
-                                    <span class="en-text">Default Sorting</span>
-                                    <span class="ar-text d-none">الترتيب الافتراضي</span>
-                                </option>
-                                <option value="priceAsc">
-                                    <span class="en-text">Price: Low to High</span>
-                                    <span class="ar-text d-none">السعر: من الأقل إلى الأعلى</span>
-                                </option>
-                                <option value="priceDesc">
-                                    <span class="en-text">Price: High to Low</span>
-                                    <span class="ar-text d-none">السعر: من الأعلى إلى الأقل</span>
-                                </option>
-                                <option value="nameAsc">
-                                    <span class="en-text">Name: A to Z</span>
-                                    <span class="ar-text d-none">الاسم: من أ إلى ي</span>
-                                </option>
-                                <option value="nameDesc">
-                                    <span class="en-text">Name: Z to A</span>
-                                    <span class="ar-text d-none">الاسم: من ي إلى أ</span>
-                                </option>
-                            </select>
+        @if (Model != null && Model.Any())
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="bg-light rounded p-4 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="section-title mb-0">
+                                <h5 class="sub-title text-primary">
+                                    <span class="en-text">Scrap & Surplus</span>
+                                    <span class="ar-text d-none">الخردة والفائض</span>
+                                </h5>
+                            </div>
+                            <div class="d-flex gap-2 mt-2 mt-md-0">
+                                <select id="sortOrder" class="form-select form-select-sm" style="width: auto;">
+                                    <option value="default">
+                                        <span class="en-text">Default Sorting</span>
+                                        <span class="ar-text d-none">الترتيب الافتراضي</span>
+                                    </option>
+                                    <option value="priceAsc">
+                                        <span class="en-text">Price: Low to High</span>
+                                        <span class="ar-text d-none">السعر: من الأقل إلى الأعلى</span>
+                                    </option>
+                                    <option value="priceDesc">
+                                        <span class="en-text">Price: High to Low</span>
+                                        <span class="ar-text d-none">السعر: من الأعلى إلى الأقل</span>
+                                    </option>
+                                    <option value="nameAsc">
+                                        <span class="en-text">Name: A to Z</span>
+                                        <span class="ar-text d-none">الاسم: من أ إلى ي</span>
+                                    </option>
+                                    <option value="nameDesc">
+                                        <span class="en-text">Name: Z to A</span>
+                                        <span class="ar-text d-none">الاسم: من ي إلى أ</span>
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
 
         <div class="row g-4" id="productsContainer">
             @if (Model != null && Model.Any())
@@ -92,27 +95,29 @@
                             <div class="position-relative">
                                 <img src="@product.ImageUrl" class="card-img-top" 
                                      alt="@product.ProductName" style="height: 250px; object-fit: cover;">
-                                <div class="product-overlay">
-                                    <div class="d-flex justify-content-center align-items-center h-100">
-                                        <a asp-controller="Product" asp-action="ProductDetails" asp-route-id="@product.Id"
-                                           class="btn btn-primary btn-sm mx-1">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <button onclick="addToCart(@product.Id)" class="btn btn-primary btn-sm mx-1">
-                                            <i class="fas fa-cart-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
                             </div>
                             <div class="card-body p-4">
-                                <h5 class="card-title mb-3">@product.ProductName</h5>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h5 class="card-title mb-0">@product.ProductName</h5>
+                                    <span class="text-primary fw-bold">@product.Price JD</span>
+                                </div>
                                 @if (!string.IsNullOrEmpty(product.Description))
                                 {
-                                    <p class="card-text description-text">@product.Description</p>
+                                    <p class="card-text description-text text-muted">@product.Description</p>
                                 }
                                 <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="text-primary fw-bold">@product.Price JD</span>
-                                    <span class="badge bg-secondary">@product.Quantity in stock</span>
+                                    <div class="d-flex gap-2">
+                                        <a asp-controller="Product" asp-action="ProductDetails" asp-route-id="@product.Id" class="btn btn-success">
+                                            <span class="en-text">Details</span>
+                                            <span class="ar-text d-none">تفاصيل</span>
+                                        </a>
+                                        <button onclick="addToCart(@product.Id)" class="btn btn-primary">
+                                            <i class="fas fa-cart-plus me-1"></i>
+                                            <span class="en-text">Add</span>
+                                            <span class="ar-text d-none">أضف</span>
+                                        </button>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">@product.Quantity in stock</span>
                                 </div>
                             </div>
                         </div>
@@ -121,8 +126,24 @@
             }
             else
             {
-                <div class="col-12 text-center">
-                    <p>No scrap & surplus products available at the moment.</p>
+                <div class="col-12">
+                    <div class="empty-state text-center py-5">
+                        <div class="empty-state-icon mb-4">
+                            <i class="fas fa-recycle text-secondary" style="font-size: 5rem; opacity: 0.5;"></i>
+                        </div>
+                        <h3 class="text-muted mb-3">
+                            <span class="en-text">No Scrap & Surplus Available</span>
+                            <span class="ar-text d-none">لا توجد خردة وفائض متوفر</span>
+                        </h3>
+                        <p class="text-muted mb-4">
+                            <span class="en-text">We haven't added any scrap & surplus items to this category yet.</span>
+                            <span class="ar-text d-none">لم نضف أي عناصر خردة وفائض إلى هذه الفئة حتى الآن.</span>
+                        </p>
+                        <a href="/" class="btn btn-primary">
+                            <span class="en-text">Back to Home</span>
+                            <span class="ar-text d-none">العودة إلى الرئيسية</span>
+                        </a>
+                    </div>
                 </div>
             }
         </div>
@@ -243,30 +264,25 @@
 
     <style>
         .card {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            border-radius: 15px;
+            overflow: hidden;
+            background-color: #fffdf0;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0f0f0;
         }
         
-        .card:hover {
+        .shadow-hover {
+            transition: box-shadow 0.3s ease-in-out;
+        }
+        
+        .shadow-hover:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
             transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
         }
 
         .product-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .card:hover .product-overlay {
-            opacity: 1;
+            display: none;
         }
 
         .description-text {
@@ -303,6 +319,40 @@
         .form-select:focus {
             border-color: #32A12E;
             box-shadow: 0 0 0 0.25rem rgba(50, 161, 46, 0.25);
+        }
+
+        .empty-state {
+            background-color: #00205b;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            color: #fff;
+        }
+
+        .empty-state h3 {
+            color: #fff;
+        }
+
+        .empty-state p {
+            color: #ddd;
+        }
+
+        .empty-state-icon {
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .empty-state-icon i {
+            color: rgba(255, 255, 255, 0.7) !important;
         }
 
         [dir="rtl"] .product-overlay {
