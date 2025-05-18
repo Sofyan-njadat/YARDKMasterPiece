@@ -1,0 +1,138 @@
+@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>YARDK - <span class="en-text">Admin</span><span class="ar-text d-none">لوحة التحكم</span> @ViewData["Title"]</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@200;300;400;500;600&family=Cairo:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/admin.css" rel="stylesheet">
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- Spinner Start -->
+    <div id="spinner"
+         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only"><span class="en-text">Loading...</span><span class="ar-text d-none">جاري التحميل...</span></span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
+    <div class="container-fluid position-relative d-flex p-0">
+        <!-- Sidebar Start -->
+        <div class="sidebar bg-light">
+            <div class="navbar-brand px-4 py-3 d-flex justify-content-center bg-primary">
+                <h3 class="text-white m-0">
+                    <img src="~/img//logoNav.png" alt="" width="40" height="40">
+                    YARDK
+                </h3>
+            </div>
+            <div class="d-flex flex-column h-100">
+                <div class="navbar-nav w-100 mt-3">
+                    <a asp-controller="Admin" asp-action="Dashboard" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")">
+                        <i class="fas fa-tachometer-alt me-2"></i><span class="nav-text en-text">Dashboard</span><span class="nav-text ar-text d-none">لوحة التحكم</span>
+                    </a>
+                    <a asp-controller="Admin" asp-action="Categories" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Categories" || ViewContext.RouteData.Values["Action"].ToString() == "CreateCategory" || ViewContext.RouteData.Values["Action"].ToString() == "EditCategory" || ViewContext.RouteData.Values["Action"].ToString() == "DeleteCategory" ? "active" : "")">
+                        <i class="fas fa-list me-2"></i><span class="nav-text en-text">Categories</span><span class="nav-text ar-text d-none">الفئات</span>
+                    </a>
+                    <a asp-controller="Product" asp-action="AllProducts" class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Product" && ViewContext.RouteData.Values["Action"].ToString() == "AllProducts" ? "active" : "")">
+                        <i class="fas fa-box me-2"></i><span class="nav-text en-text">All Products</span><span class="nav-text ar-text d-none">جميع المنتجات</span>
+                    </a>
+                    <a asp-controller="Admin" asp-action="Users" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Users" ? "active" : "")">
+                        <i class="fas fa-users me-2"></i><span class="nav-text en-text">Users</span><span class="nav-text ar-text d-none">المستخدمين</span>
+                    </a>
+                    <a asp-controller="Admin" asp-action="BlockedUsers" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "BlockedUsers" ? "active" : "")">
+                        <i class="fas fa-user-slash me-2"></i><span class="nav-text en-text">Blocked Users</span><span class="nav-text ar-text d-none">المستخدمين المحظورين</span>
+                    </a>
+                    <a asp-controller="Admin" asp-action="Admins" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Admins" ? "active" : "")">
+                        <i class="fas fa-user-shield me-2"></i><span class="nav-text en-text">Admins</span><span class="nav-text ar-text d-none">المسؤولين</span>
+                    </a>
+                    <a asp-controller="Admin" asp-action="Orders" class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Orders" ? "active" : "")">
+                        <i class="fas fa-shopping-cart me-2"></i><span class="nav-text en-text">Orders Management</span><span class="nav-text ar-text d-none">إدارة الطلبات</span>
+                    </a>
+                </div>
+                <div class="mt-auto mb-4 mx-4">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary w-100 mb-3">
+                        <i class="fas fa-home me-2"></i><span class="en-text">View Website</span><span class="ar-text d-none">عرض الموقع</span>
+                    </a>
+                    <a asp-controller="User" asp-action="Logout" class="btn btn-outline-danger w-100">
+                        <i class="fas fa-sign-out-alt me-2"></i><span class="en-text">Logout</span><span class="ar-text d-none">تسجيل الخروج</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Sidebar End -->
+
+        <!-- Content Start -->
+        <div class="content">
+            <!-- Header Bar Start -->
+            <nav class="navbar px-4 py-0 d-flex bg-light shadow-sm mb-4">
+                <div>
+                    <a href="#" class="sidebar-toggler flex-shrink-0 btn btn-light" style="position: fixed; margin-top: 2%; z-index: 1000; background-color: #FFC107;">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </div>
+                
+                <!-- Language Switcher Button - Always on the opposite side -->
+                <div class="language-switcher ms-auto">
+                    <button class="btn lang-btn" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position: fixed; right: 20px; margin-top: 2%; z-index: 1000; background-color: #FFC107;">
+                        <i class="fas fa-language me-2"></i><span class="current-lang">العربية</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown" style="right: 20px; top: 60px; position: fixed;">
+                        <li><a class="dropdown-item" href="#" data-lang="ar">العربية</a></li>
+                        <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- Header Bar End -->
+
+            <!-- Main Content Start -->
+            <div class="container-fluid pt-4 px-4 pb-5">
+                @RenderBody()
+            </div>
+            <!-- Main Content End -->
+
+
+        </div>
+        <!-- Content End -->
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="~/js/main.js"></script>
+    <script src="~/js/admin.js"></script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html> 

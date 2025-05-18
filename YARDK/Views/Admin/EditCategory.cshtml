@@ -1,83 +1,95 @@
 @model YARDK.Models.Category
+
 @{
     ViewData["Title"] = "Edit Category";
-    Layout = "_Layout";
+    Layout = "_AdminLayout";
 }
 
-<div class="container-fluid bg-breadcrumb">
-    <div class="container text-center py-5" style="max-width: 900px;">
-        <h1 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Edit Category</h1>
-        <ol class="breadcrumb justify-content-center text-white mb-0 wow fadeInDown" data-wow-delay="0.3s">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white">Home</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard" class="text-white">Admin</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Categories" class="text-white">Categories</a></li>
-            <li class="breadcrumb-item active text-secondary">Edit</li>
-        </ol>
-    </div>
-</div>
-
-<div class="container-fluid py-5">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="card-title mb-0">Edit Category</h4>
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="EditCategory" method="post" enctype="multipart/form-data">
-                            <input type="hidden" asp-for="Id" />
-                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                            
-                            <div class="mb-3">
-                                <label asp-for="CategoryName" class="form-label">Category Name</label>
-                                <input asp-for="CategoryName" class="form-control" placeholder="Enter category name" />
-                                <span asp-validation-for="CategoryName" class="text-danger"></span>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-edit me-2"></i>
+                        <span class="en-text">Edit Category</span>
+                        <span class="ar-text d-none">تعديل الفئة</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditCategory" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
+                        
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="CategoryName" class="form-control" placeholder="Category Name" required />
+                                    <label asp-for="CategoryName">
+                                        <span class="en-text">Category Name</span>
+                                        <span class="ar-text d-none">اسم الفئة</span>
+                                    </label>
+                                    <span asp-validation-for="CategoryName" class="text-danger"></span>
+                                    <div class="invalid-feedback">
+                                        <span class="en-text">Please enter a category name.</span>
+                                        <span class="ar-text d-none">يرجى إدخال اسم الفئة.</span>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label asp-for="Description" class="form-label">Description</label>
-                                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter category description"></textarea>
-                                <span asp-validation-for="Description" class="text-danger"></span>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Current Image</label>
-                                <div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <span class="en-text">Category Image</span>
+                                        <span class="ar-text d-none">صورة الفئة</span>
+                                    </label>
+                                    <input type="file" name="categoryImage" class="form-control image-preview-input" 
+                                           data-preview="#imagePreview" accept="image/*" />
+                                    <small class="form-text text-muted">
+                                        <span class="en-text">Leave empty to keep the current image.</span>
+                                        <span class="ar-text d-none">اتركه فارغاً للإبقاء على الصورة الحالية.</span>
+                                    </small>
+                                </div>
+                                <div class="mb-3 text-center">
                                     @if (!string.IsNullOrEmpty(Model.ImageUrl))
                                     {
-                                        <img src="@Model.ImageUrl" alt="@Model.CategoryName" class="img-thumbnail" style="max-width: 300px; max-height: 200px;" />
+                                        <img id="imagePreview" src="@Model.ImageUrl" alt="Current Image" class="img-thumbnail mt-2" 
+                                             style="max-height: 200px;" />
                                     }
                                     else
                                     {
-                                        <p class="text-muted">No image available</p>
+                                        <img id="imagePreview" src="#" alt="Image Preview" class="img-thumbnail mt-2" 
+                                             style="max-height: 200px; display: none;" />
                                     }
                                 </div>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label for="categoryImage" class="form-label">Change Image</label>
-                                <input type="file" id="categoryImage" name="categoryImage" class="form-control" accept="image/*" />
-                                <div class="form-text text-muted">Select a new image for the category (recommended size: 800x600px)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <textarea asp-for="Description" class="form-control" placeholder="Description" 
+                                          style="height: 100px;"></textarea>
+                                <label asp-for="Description">
+                                    <span class="en-text">Description</span>
+                                    <span class="ar-text d-none">الوصف</span>
+                                </label>
+                                <span asp-validation-for="Description" class="text-danger"></span>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label>Preview</label>
-                                <div class="mt-2">
-                                    <img id="imagePreview" src="#" alt="Preview" style="max-width: 300px; max-height: 200px; display: none;" class="img-thumbnail" />
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between mt-4">
-                                <a asp-action="Categories" class="btn btn-secondary rounded-pill px-4">
-                                    <i class="fas fa-arrow-left me-2"></i>Back to Categories
-                                </a>
-                                <button type="submit" class="btn btn-primary rounded-pill px-4">
-                                    <i class="fas fa-save me-2"></i>Save Changes
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Categories" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                <span class="en-text">Back to List</span>
+                                <span class="ar-text d-none">العودة إلى القائمة</span>
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                <span class="en-text">Update</span>
+                                <span class="ar-text d-none">تحديث</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -86,21 +98,4 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script>
-        $(document).ready(function () {
-            // Image preview functionality
-            $("#categoryImage").change(function () {
-                var file = this.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        $("#imagePreview").attr('src', e.target.result).show();
-                    }
-                    reader.readAsDataURL(file);
-                } else {
-                    $("#imagePreview").hide();
-                }
-            });
-        });
-    </script>
 } 

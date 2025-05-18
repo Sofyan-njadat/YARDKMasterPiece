@@ -1,0 +1,838 @@
+@model YARDK.Models.User
+
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <!-- بطاقة معلومات المستخدم -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-user me-2"></i>
+                        <span class="en-text">User Information</span>
+                        <span class="ar-text d-none">معلومات المستخدم</span>
+                    </h5>
+                    <a asp-action="Users" class="btn btn-sm btn-light">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        <span class="en-text">Back to Users</span>
+                        <span class="ar-text d-none">العودة للمستخدمين</span>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 text-center mb-3 mb-md-0">
+                            @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                            {
+                                <img src="@Model.ProfileImageUrl" alt="@Model.Name" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 150px; height: 150px; font-size: 50px; margin: 0 auto;">
+                                    @(Model.Name?.Substring(0, 1).ToUpper())
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-10">
+                            <h4>@Model.Name</h4>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">ID:</span>
+                                            <span class="ar-text d-none">المعرف:</span>
+                                        </strong> @Model.Id
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Email:</span>
+                                            <span class="ar-text d-none">البريد الإلكتروني:</span>
+                                        </strong> @Model.Email
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Phone:</span>
+                                            <span class="ar-text d-none">الهاتف:</span>
+                                        </strong> @(Model.Phone ?? "-")
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Role:</span>
+                                            <span class="ar-text d-none">الدور:</span>
+                                        </strong>
+                                        @if (Model.Role == "Admin")
+                                        {
+                                            <span class="badge bg-primary">
+                                                <span class="en-text">Admin</span>
+                                                <span class="ar-text d-none">مسؤول</span>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge" style="background-color: #8caed2;">
+                                                <span class="en-text">User</span>
+                                                <span class="ar-text d-none">مستخدم</span>
+                                            </span>
+                                        }
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Status:</span>
+                                            <span class="ar-text d-none">الحالة:</span>
+                                        </strong>
+                                        @if (Model.IsActive == true)
+                                        {
+                                            <span class="badge bg-success">
+                                                <span class="en-text">Active</span>
+                                                <span class="ar-text d-none">نشط</span>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                <span class="en-text">Inactive</span>
+                                                <span class="ar-text d-none">معطل</span>
+                                            </span>
+                                        }
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Joined On:</span>
+                                            <span class="ar-text d-none">تاريخ الانضمام:</span>
+                                        </strong> @(Model.CreatedAt?.ToString("yyyy-MM-dd") ?? "-")
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بطاقة منتجات المستخدم -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-box me-2"></i>
+                        <span class="en-text">User Products</span>
+                        <span class="ar-text d-none">منتجات المستخدم</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.UserProducts != null && ((IEnumerable<YARDK.Models.Product>)ViewBag.UserProducts).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <span class="en-text">ID</span>
+                                            <span class="ar-text d-none">المعرف</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Product Name</span>
+                                            <span class="ar-text d-none">اسم المنتج</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Category</span>
+                                            <span class="ar-text d-none">الفئة</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Price</span>
+                                            <span class="ar-text d-none">السعر</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Status</span>
+                                            <span class="ar-text d-none">الحالة</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Created At</span>
+                                            <span class="ar-text d-none">تاريخ الإنشاء</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Actions</span>
+                                            <span class="ar-text d-none">الإجراءات</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in ViewBag.UserProducts)
+                                    {
+                                        <tr>
+                                            <td>@product.Id</td>
+                                            <td>@product.ProductName</td>
+                                            <td>@product.Category</td>
+                                            <td>@product.Price JD</td>
+                                            <td>
+                                                <span class="badge @(product.Status == "Active" ? "bg-success" : (product.Status == "Pending" ? "bg-warning" : "bg-secondary"))">
+                                                    @product.Status
+                                                </span>
+                                            </td>
+                                            <td>@(product.CreatedAt?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                            <td>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-info view-product-details" 
+                                                        data-product-id="@product.Id"
+                                                        data-product-name="@product.ProductName"
+                                                        data-product-price="@product.Price"
+                                                        data-product-category="@product.Category"
+                                                        data-product-status="@product.Status"
+                                                        data-product-created="@(product.CreatedAt?.ToString("yyyy-MM-dd") ?? "-")"
+                                                        data-product-desc="@(product.Description ?? "-")"
+                                                        data-product-image="@(product.ImageUrl ?? "/img/no-image.jpg")"
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-title-en="View Custom Details"
+                                                        data-bs-title-ar="عرض تفاصيل مخصصة">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                            <h5>
+                                <span class="en-text">No Products</span>
+                                <span class="ar-text d-none">لا توجد منتجات</span>
+                            </h5>
+                            <p class="text-muted">
+                                <span class="en-text">This user hasn't added any products yet.</span>
+                                <span class="ar-text d-none">لم يقم هذا المستخدم بإضافة أي منتجات حتى الآن.</span>
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بطاقة الطلبات -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        <span class="en-text">User Orders</span>
+                        <span class="ar-text d-none">طلبات المستخدم</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.UserOrders != null && ((IEnumerable<YARDK.Models.Order>)ViewBag.UserOrders).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <span class="en-text">ID</span>
+                                            <span class="ar-text d-none">المعرف</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Order Date</span>
+                                            <span class="ar-text d-none">تاريخ الطلب</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Total Amount</span>
+                                            <span class="ar-text d-none">المبلغ الإجمالي</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Status</span>
+                                            <span class="ar-text d-none">الحالة</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Payment Status</span>
+                                            <span class="ar-text d-none">حالة الدفع</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Actions</span>
+                                            <span class="ar-text d-none">الإجراءات</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in ViewBag.UserOrders)
+                                    {
+                                        <tr>
+                                            <td>@order.Id</td>
+                                            <td>@(order.CreatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                                            <td>@order.TotalAmount JD</td>
+                                            <td>
+                                                <span class="badge @(order.Status == "Completed" ? "bg-success" : (order.Status == "Pending" ? "bg-warning" : (order.Status == "Cancelled" ? "bg-danger" : "bg-primary")))">
+                                                    @order.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge @(order.PaymentStatus == "Paid" ? "bg-success" : "bg-warning")">
+                                                    @order.PaymentStatus
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-info view-order-details" 
+                                                        data-order-id="@order.Id"
+                                                        data-order-date="@(order.CreatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")"
+                                                        data-order-total="@order.TotalAmount"
+                                                        data-order-status="@order.Status"
+                                                        data-order-payment-status="@order.PaymentStatus"
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-title-en="View Custom Details"
+                                                        data-bs-title-ar="عرض تفاصيل مخصصة">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5>
+                                <span class="en-text">No Orders</span>
+                                <span class="ar-text d-none">لا توجد طلبات</span>
+                            </h5>
+                            <p class="text-muted">
+                                <span class="en-text">This user hasn't placed any orders yet.</span>
+                                <span class="ar-text d-none">لم يقم هذا المستخدم بإجراء أي طلبات حتى الآن.</span>
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بطاقة الإعلانات المميزة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-star me-2"></i>
+                        <span class="en-text">Featured Ads</span>
+                        <span class="ar-text d-none">الإعلانات المميزة</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.UserFeaturedAds != null && ((IEnumerable<YARDK.Models.FeaturedAd>)ViewBag.UserFeaturedAds).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <span class="en-text">ID</span>
+                                            <span class="ar-text d-none">المعرف</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Product</span>
+                                            <span class="ar-text d-none">المنتج</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Price</span>
+                                            <span class="ar-text d-none">السعر</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Duration</span>
+                                            <span class="ar-text d-none">المدة</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Start Date</span>
+                                            <span class="ar-text d-none">تاريخ البدء</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">End Date</span>
+                                            <span class="ar-text d-none">تاريخ الانتهاء</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Status</span>
+                                            <span class="ar-text d-none">الحالة</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Actions</span>
+                                            <span class="ar-text d-none">الإجراءات</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ad in ViewBag.UserFeaturedAds)
+                                    {
+                                        <tr>
+                                            <td>@ad.Id</td>
+                                            <td>@(ad.Product?.ProductName ?? "-")</td>
+                                            <td>@ad.Price JD</td>
+                                            <td>@ad.Duration Days</td>
+                                            <td>@(ad.StartDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                            <td>@(ad.EndDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                            <td>
+                                                <span class="badge @(ad.Status == "Active" ? "bg-success" : (ad.Status == "Pending" ? "bg-warning" : "bg-secondary"))">
+                                                    @ad.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (ad.Product != null)
+                                                {
+                                                    <a href="@Url.Action("ProductDetails", "Product", new { id = ad.Product.Id })" 
+                                                       class="btn btn-sm btn-primary" target="_blank"
+                                                       data-bs-toggle="tooltip" 
+                                                       data-bs-title-en="View Product Details" 
+                                                       data-bs-title-ar="عرض تفاصيل المنتج">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                            <h5>
+                                <span class="en-text">No Featured Ads</span>
+                                <span class="ar-text d-none">لا توجد إعلانات مميزة</span>
+                            </h5>
+                            <p class="text-muted">
+                                <span class="en-text">This user hasn't created any featured ads yet.</span>
+                                <span class="ar-text d-none">لم يقم هذا المستخدم بإنشاء أي إعلانات مميزة حتى الآن.</span>
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal fade" id="productDetailsModal" tabindex="-1" aria-labelledby="productDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="productDetailsModalLabel">
+                    <span class="en-text">Product Details</span>
+                    <span class="ar-text d-none">تفاصيل المنتج</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-5 text-center mb-3">
+                        <img id="productImage" src="" alt="Product Image" class="img-fluid rounded shadow-sm" style="max-height: 250px; object-fit: cover;">
+                    </div>
+                    <div class="col-md-7">
+                        <h4 id="productName" class="mb-3 text-primary"></h4>
+                        <div class="mb-2">
+                            <strong>
+                                <span class="en-text">Category:</span>
+                                <span class="ar-text d-none">الفئة:</span>
+                            </strong> 
+                            <span id="productCategory"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>
+                                <span class="en-text">Price:</span>
+                                <span class="ar-text d-none">السعر:</span>
+                            </strong> 
+                            <span id="productPrice"></span> JD
+                        </div>
+                        <div class="mb-2">
+                            <strong>
+                                <span class="en-text">Status:</span>
+                                <span class="ar-text d-none">الحالة:</span>
+                            </strong> 
+                            <span id="productStatus" class="badge"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>
+                                <span class="en-text">Created At:</span>
+                                <span class="ar-text d-none">تاريخ الإنشاء:</span>
+                            </strong> 
+                            <span id="productCreated"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>
+                                <span class="en-text">Seller:</span>
+                                <span class="ar-text d-none">البائع:</span>
+                            </strong> 
+                            <span>@Model.Name</span>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div>
+                    <h5 class="mb-2">
+                        <span class="en-text">Description:</span>
+                        <span class="ar-text d-none">الوصف:</span>
+                    </h5>
+                    <p id="productDesc" class="bg-light p-3 rounded"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <span class="en-text">Close</span>
+                    <span class="ar-text d-none">إغلاق</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="orderDetailsModalLabel">
+                    <span class="en-text">Order Details</span>
+                    <span class="ar-text d-none">تفاصيل الطلب</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col">
+                        <h5 class="mb-1">
+                            <span class="en-text">Order</span>
+                            <span class="ar-text d-none">الطلب</span> #<span id="orderNumber"></span>
+                        </h5>
+                        <p class="text-muted" id="orderDateFormatted"></p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Order Items -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <span class="en-text">Order Items</span>
+                                    <span class="ar-text d-none">عناصر الطلب</span>
+                                </h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="text-center py-4" id="loadingItems">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">
+                                        <span class="en-text">Loading order items...</span>
+                                        <span class="ar-text d-none">جاري تحميل عناصر الطلب...</span>
+                                    </p>
+                                </div>
+                                <div id="orderItemsContainer" style="display: none;">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <span class="en-text">Product</span>
+                                                        <span class="ar-text d-none">المنتج</span>
+                                                    </th>
+                                                    <th>
+                                                        <span class="en-text">Quantity</span>
+                                                        <span class="ar-text d-none">الكمية</span>
+                                                    </th>
+                                                    <th>
+                                                        <span class="en-text">Price</span>
+                                                        <span class="ar-text d-none">السعر</span>
+                                                    </th>
+                                                    <th>
+                                                        <span class="en-text">Total</span>
+                                                        <span class="ar-text d-none">المجموع</span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="orderItemsList">
+                                                <!-- Order items will be populated here -->
+                                            </tbody>
+                                            <tfoot class="table-light">
+                                                <tr>
+                                                    <td colspan="3" class="text-end fw-bold">
+                                                        <span class="en-text">Total:</span>
+                                                        <span class="ar-text d-none">المجموع:</span>
+                                                    </td>
+                                                    <td class="fw-bold" id="orderItemsTotal">JD 0.00</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="text-center py-4" id="noItemsMessage" style="display: none;">
+                                    <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                                    <h6>
+                                        <span class="en-text">No Items Available</span>
+                                        <span class="ar-text d-none">لا توجد عناصر متاحة</span>
+                                    </h6>
+                                    <p class="text-muted">
+                                        <span class="en-text">Order items could not be loaded.</span>
+                                        <span class="ar-text d-none">تعذر تحميل عناصر الطلب.</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <!-- Order Summary -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <span class="en-text">Order Summary</span>
+                                    <span class="ar-text d-none">ملخص الطلب</span>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>
+                                        <span class="en-text">Order ID:</span>
+                                        <span class="ar-text d-none">رقم الطلب:</span>
+                                    </span>
+                                    <span id="orderIdText"></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>
+                                        <span class="en-text">Order Date:</span>
+                                        <span class="ar-text d-none">تاريخ الطلب:</span>
+                                    </span>
+                                    <span id="orderDate"></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>
+                                        <span class="en-text">Status:</span>
+                                        <span class="ar-text d-none">الحالة:</span>
+                                    </span>
+                                    <span id="orderStatus" class="badge"></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>
+                                        <span class="en-text">Payment Method:</span>
+                                        <span class="ar-text d-none">طريقة الدفع:</span>
+                                    </span>
+                                    <span id="orderPaymentMethod"></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>
+                                        <span class="en-text">Payment Status:</span>
+                                        <span class="ar-text d-none">حالة الدفع:</span>
+                                    </span>
+                                    <span id="orderPaymentStatus" class="badge"></span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>
+                                        <span class="en-text">Total Amount:</span>
+                                        <span class="ar-text d-none">المبلغ الإجمالي:</span>
+                                    </span>
+                                    <span class="text-primary" id="orderTotal"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Details -->
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <span class="en-text">Shipping Details</span>
+                                    <span class="ar-text d-none">تفاصيل الشحن</span>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-2">
+                                    <strong>
+                                        <span class="en-text">Shipping Address:</span>
+                                        <span class="ar-text d-none">عنوان الشحن:</span>
+                                    </strong>
+                                </p>
+                                <p class="mb-4" id="shippingAddress">-</p>
+
+                                <p class="mb-2">
+                                    <strong>
+                                        <span class="en-text">Billing Address:</span>
+                                        <span class="ar-text d-none">عنوان الفواتير:</span>
+                                    </strong>
+                                </p>
+                                <p id="billingAddress">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    <span class="en-text">Buyer's Name <strong>@Model.Name</strong></span>
+                    <span class="ar-text d-none">اسم المشتري <strong>@Model.Name</strong></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <span class="en-text">Close</span>
+                    <span class="ar-text d-none">إغلاق</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // تهيئة التلميحات
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+            
+            // تعامل مع عرض تفاصيل المنتج
+            $('.view-product-details').on('click', function() {
+                var productId = $(this).data('product-id');
+                var productName = $(this).data('product-name');
+                var productPrice = $(this).data('product-price');
+                var productCategory = $(this).data('product-category');
+                var productStatus = $(this).data('product-status');
+                var productCreated = $(this).data('product-created');
+                var productDesc = $(this).data('product-desc');
+                var productImage = $(this).data('product-image');
+                
+                // تعيين القيم في النافذة المنبثقة
+                $('#productName').text(productName);
+                $('#productPrice').text(productPrice);
+                $('#productCategory').text(productCategory);
+                $('#productCreated').text(productCreated);
+                $('#productDesc').text(productDesc);
+                $('#productImage').attr('src', productImage);
+                $('#productImage').attr('alt', productName);
+                $('#viewProductLink').attr('href', '@Url.Action("ProductDetails", "Product")/' + productId);
+                
+                // تعيين لون الحالة
+                if (productStatus === 'Active') {
+                    $('#productStatus').removeClass().addClass('badge bg-success').text(productStatus);
+                } else if (productStatus === 'Pending') {
+                    $('#productStatus').removeClass().addClass('badge bg-warning').text(productStatus);
+                } else {
+                    $('#productStatus').removeClass().addClass('badge bg-secondary').text(productStatus);
+                }
+                
+                // عرض النافذة المنبثقة
+                $('#productDetailsModal').modal('show');
+            });
+            
+            // تعامل مع عرض تفاصيل الطلب
+            $('.view-order-details').on('click', function() {
+                var orderId = $(this).data('order-id');
+                var orderDate = $(this).data('order-date');
+                var orderTotal = $(this).data('order-total');
+                var orderStatus = $(this).data('order-status');
+                var orderPaymentStatus = $(this).data('order-payment-status');
+                
+                // إعادة تعيين الحالة
+                $('#loadingItems').show();
+                $('#orderItemsContainer').hide();
+                $('#noItemsMessage').hide();
+                
+                // تعيين القيم في النافذة المنبثقة
+                $('#orderIdText').text(orderId);
+                $('#orderDate').text(orderDate);
+                $('#orderDateFormatted').text(orderDate);
+                $('#orderTotal').text('JD ' + orderTotal);
+                $('#orderItemsTotal').text('JD ' + orderTotal);
+                
+                // تعيين لون حالة الطلب
+                if (orderStatus === 'Completed') {
+                    $('#orderStatus').removeClass().addClass('badge bg-success').text(orderStatus);
+                } else if (orderStatus === 'Pending') {
+                    $('#orderStatus').removeClass().addClass('badge bg-warning').text(orderStatus);
+                } else if (orderStatus === 'Cancelled') {
+                    $('#orderStatus').removeClass().addClass('badge bg-danger').text(orderStatus);
+                } else {
+                    $('#orderStatus').removeClass().addClass('badge bg-primary').text(orderStatus);
+                }
+                
+                // تعيين لون حالة الدفع
+                if (orderPaymentStatus === 'Paid') {
+                    $('#orderPaymentStatus').removeClass().addClass('badge bg-success').text(orderPaymentStatus);
+                } else {
+                    $('#orderPaymentStatus').removeClass().addClass('badge bg-warning').text(orderPaymentStatus);
+                }
+                
+                // عرض النافذة المنبثقة
+                $('#orderDetailsModal').modal('show');
+                
+                // جلب تفاصيل الطلب من الخادم
+                $.ajax({
+                    url: '@Url.Action("GetOrderDetails", "User")/' + orderId,
+                    type: 'GET',
+                    success: function(response) {
+                        if (response && response.success) {
+                            var order = response.data;
+                            
+                            // تعيين معلومات الطلب
+                            $('#orderNumber').text(order.orderNumber || orderId);
+                            $('#orderPaymentMethod').text(order.paymentMethod || '-');
+                            $('#shippingAddress').text(order.shippingAddress || '-');
+                            $('#billingAddress').text(order.billingAddress || '-');
+                            
+                            // عرض عناصر الطلب
+                            if (order.orderItems && order.orderItems.length > 0) {
+                                var itemsHtml = '';
+                                order.orderItems.forEach(function(item) {
+                                    itemsHtml += '<tr>';
+                                    itemsHtml += '<td class="align-middle">';
+                                    itemsHtml += '<div class="d-flex align-items-center">';
+                                    
+                                    if (item.product && item.product.imageUrl) {
+                                        itemsHtml += '<img src="' + item.product.imageUrl + '" alt="' + (item.product.productName || 'Product') + '" class="img-thumbnail me-3" style="width: 50px; height: 50px;">';
+                                    } else {
+                                        itemsHtml += '<img src="/img/no-image.jpg" alt="Product" class="img-thumbnail me-3" style="width: 50px; height: 50px;">';
+                                    }
+                                    
+                                    itemsHtml += '<div><p class="mb-0">' + (item.product ? item.product.productName : 'Product') + '</p></div>';
+                                    itemsHtml += '</div>';
+                                    itemsHtml += '</td>';
+                                    itemsHtml += '<td class="align-middle">' + item.quantity + '</td>';
+                                    itemsHtml += '<td class="align-middle">JD ' + parseFloat(item.unitPrice).toFixed(2) + '</td>';
+                                    itemsHtml += '<td class="align-middle">JD ' + parseFloat(item.totalPrice).toFixed(2) + '</td>';
+                                    itemsHtml += '</tr>';
+                                });
+                                
+                                $('#orderItemsList').html(itemsHtml);
+                                $('#loadingItems').hide();
+                                $('#orderItemsContainer').show();
+                            } else {
+                                $('#loadingItems').hide();
+                                $('#noItemsMessage').show();
+                            }
+                        } else {
+                            $('#loadingItems').hide();
+                            $('#noItemsMessage').show();
+                        }
+                    },
+                    error: function() {
+                        $('#loadingItems').hide();
+                        $('#noItemsMessage').show();
+                    }
+                });
+            });
+        });
+    </script>
+} 

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YARDK.Models;
+using Microsoft.Extensions.Logging;
 
 namespace YARDK.Controllers
 {
@@ -14,11 +15,13 @@ namespace YARDK.Controllers
     {
         private readonly MyDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(MyDbContext context, IWebHostEnvironment webHostEnvironment)
+        public AdminController(MyDbContext context, IWebHostEnvironment webHostEnvironment, ILogger<AdminController> logger)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _logger = logger;
         }
 
         // التحقق من صلاحيات المستخدم كمسؤول
@@ -52,6 +55,139 @@ namespace YARDK.Controllers
             var accessCheck = CheckAdminAccess();
             if (accessCheck != null)
                 return accessCheck;
+
+            // جمع الإحصائيات للوحة التحكم
+            try
+            {
+                // إحصائيات المستخدمين
+                ViewBag.TotalUsers = _context.Users.Count();
+                ViewBag.NewUsers = _context.Users.Count(u => u.CreatedAt >= DateTime.Now.AddMonths(-1));
+
+                // إحصائيات المنتجات
+                ViewBag.TotalProducts = _context.Products.Count();
+                ViewBag.NewProducts = _context.Products.Count(p => p.CreatedAt >= DateTime.Now.AddDays(-7));
+
+                // إحصائيات الطلبات
+                ViewBag.TotalOrders = _context.Orders.Count();
+                ViewBag.PendingOrders = _context.Orders.Count(o => o.Status == "Pending");
+
+                // إحصائيات الإيرادات
+                ViewBag.TotalRevenue = Math.Round(_context.Orders.Sum(o => o.TotalAmount), 2);
+                ViewBag.MonthlyRevenue = Math.Round(_context.Orders
+                    .Where(o => o.CreatedAt >= DateTime.Now.AddMonths(-1))
+                    .Sum(o => o.TotalAmount), 2);
+                    
+                // إحصائيات الفئات
+                ViewBag.TotalCategories = _context.Categories.Count();
+                
+                // إحصائيات التعليقات
+                ViewBag.TotalFeedbacks = _context.Feedbacks.Count();
+                ViewBag.NewFeedbacks = _context.Feedbacks.Count(f => f.CreatedAt >= DateTime.Now.AddDays(-7));
+                
+                // بيانات إحصائيات المبيعات للرسم البياني
+                var lastSixMonths = Enumerable.Range(0, 6)
+                    .Select(i => DateTime.Now.AddMonths(-i))
+                    .Select(date => new
+                    {
+                        Month = date.ToString("MMM"),
+                        Year = date.Year,
+                        MonthNumber = date.Month,
+                        YearNumber = date.Year
+                    })
+                    .ToList();
+                    
+                var monthlySales = new List<object>();
+                
+                foreach (var month in lastSixMonths)
+                {
+                    var salesAmount = _context.Orders
+                        .Where(o => o.CreatedAt.HasValue && 
+                               o.CreatedAt.Value.Month == month.MonthNumber && 
+                               o.CreatedAt.Value.Year == month.YearNumber)
+                        .Sum(o => o.TotalAmount);
+                        
+                    monthlySales.Add(new
+                    {
+                        Month = month.Month,
+                        Year = month.Year,
+                        Sales = Math.Round(salesAmount, 2)
+                    });
+                }
+                
+                ViewBag.MonthlySales = monthlySales.OrderBy(m => ((dynamic)m).Year).ThenBy(m => ((dynamic)m).Month).ToList();
+                
+                // إحصائيات أعداد الطلبات خلال آخر أسبوع
+                var lastWeekDays = Enumerable.Range(0, 7)
+                    .Select(i => DateTime.Now.Date.AddDays(-i))
+                    .ToList();
+                    
+                var weeklyOrdersData = new List<object>();
+                
+                foreach (var day in lastWeekDays)
+                {
+                    var ordersCount = _context.Orders
+                        .Count(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Date == day);
+                        
+                    weeklyOrdersData.Add(new
+                    {
+                        Date = day.ToString("dd MMM"),
+                        Day = day.ToString("ddd"),
+                        Count = ordersCount
+                    });
+                }
+                
+                ViewBag.WeeklyOrdersData = weeklyOrdersData.OrderBy(d => ((dynamic)d).Date).ToList();
+                
+                // آخر النشاطات - الطلبات والتسجيلات الجديدة
+                var recentOrders = _context.Orders
+                    .OrderByDescending(o => o.CreatedAt)
+                    .Take(3)
+                    .Select(o => new
+                    {
+                        OrderId = o.Id,
+                        TotalAmount = o.TotalAmount,
+                        Status = o.Status,
+                        CreatedAt = o.CreatedAt,
+                        UserName = _context.Users.Where(u => u.Id == o.UserId).Select(u => u.Name).FirstOrDefault()
+                    })
+                    .ToList();
+                    
+                var recentUsers = _context.Users
+                    .OrderByDescending(u => u.CreatedAt)
+                    .Take(2)
+                    .Select(u => new
+                    {
+                        UserId = u.Id,
+                        Name = u.Name,
+                        CreatedAt = u.CreatedAt
+                    })
+                    .ToList();
+                    
+                ViewBag.RecentOrders = recentOrders;
+                ViewBag.RecentUsers = recentUsers;
+            }
+            catch (Exception ex)
+            {
+                // في حالة وجود مشكلة في استخراج البيانات، عرض قيم افتراضية
+                ViewBag.TotalUsers = 0;
+                ViewBag.NewUsers = 0;
+                ViewBag.TotalProducts = 0;
+                ViewBag.NewProducts = 0;
+                ViewBag.TotalOrders = 0;
+                ViewBag.PendingOrders = 0;
+                ViewBag.TotalRevenue = 0;
+                ViewBag.MonthlyRevenue = 0;
+                ViewBag.TotalCategories = 0;
+                ViewBag.TotalFeedbacks = 0;
+                ViewBag.NewFeedbacks = 0;
+                ViewBag.MonthlySales = new List<object>();
+                ViewBag.WeeklyOrdersData = new List<object>();
+                ViewBag.RecentOrders = new List<object>();
+                ViewBag.RecentUsers = new List<object>();
+                
+                // يمكن تسجيل الخطأ هنا
+                Console.WriteLine($"Error loading dashboard stats: {ex.Message}");
+            }
 
             return View();
         }
@@ -290,6 +426,347 @@ namespace YARDK.Controllers
         private bool CategoryExists(int id)
         {
             return _context.Categories.Any(e => e.Id == id);
+        }
+
+        // GET: Admin/Users
+        public async Task<IActionResult> Users()
+        {
+            // التحقق من صلاحيات المستخدم
+            var accessCheck = CheckAdminAccess();
+            if (accessCheck != null)
+                return accessCheck;
+
+            var users = await _context.Users.ToListAsync();
+            return View(users);
+        }
+
+        // POST: Admin/ToggleUserStatus
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleUserStatus(int id)
+        {
+            // التحقق من صلاحيات المستخدم
+            var accessCheck = CheckAdminAccess();
+            if (accessCheck != null)
+                return accessCheck;
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Users));
+            }
+
+            // تغيير حالة المستخدم من نشط إلى معطل أو العكس
+            user.IsActive = !user.IsActive;
+            
+            await _context.SaveChangesAsync();
+            
+            return RedirectToAction(nameof(Users));
+        }
+
+        // POST: Admin/AssignAdmin
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignAdmin(int id)
+        {
+            // التحقق من صلاحيات المستخدم
+            var accessCheck = CheckAdminAccess();
+            if (accessCheck != null)
+                return accessCheck;
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Users));
+            }
+
+            // تغيير دور المستخدم إلى مسؤول
+            user.Role = "Admin";
+            
+            await _context.SaveChangesAsync();
+            
+            return RedirectToAction(nameof(Users));
+        }
+
+        // GET: Admin/Admins
+        public async Task<IActionResult> Admins()
+        {
+            // التحقق من صلاحيات المستخدم
+            var accessCheck = CheckAdminAccess();
+            if (accessCheck != null)
+                return accessCheck;
+
+            var admins = await _context.Users.Where(u => u.Role == "Admin").ToListAsync();
+            return View(admins);
+        }
+
+        // POST: Admin/RemoveAdmin
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveAdmin(int id)
+        {
+            // التحقق من صلاحيات المستخدم
+            var accessCheck = CheckAdminAccess();
+            if (accessCheck != null)
+                return accessCheck;
+
+            var admin = await _context.Users.FindAsync(id);
+            if (admin == null)
+            {
+                return RedirectToAction(nameof(Admins));
+            }
+
+            // التحقق من أن المستخدم الحالي ليس نفسه الذي يتم حذفه
+            if (admin.Id.ToString() == Request.Cookies["UserId"])
+            {
+                TempData["Error"] = Request.Cookies["Lang"] == "ar" 
+                    ? "لا يمكنك إزالة نفسك من قائمة المسؤولين" 
+                    : "You cannot remove yourself from admin list";
+                return RedirectToAction(nameof(Admins));
+            }
+
+            // تغيير دور المسؤول إلى مستخدم عادي
+            admin.Role = "User";
+            
+            await _context.SaveChangesAsync();
+            
+            return RedirectToAction(nameof(Admins));
+        }
+
+        // GET: Admin/UserDetails/5
+        public async Task<IActionResult> UserDetails(int? id)
+        {
+            // التحقق من صلاحيات المستخدم
+            var accessCheck = CheckAdminAccess();
+            if (accessCheck != null)
+                return accessCheck;
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // الحصول على منتجات المستخدم
+            var userProducts = await _context.Products
+                .Where(p => p.SellerId == id)
+                .ToListAsync();
+
+            // الحصول على إعلانات المستخدم المميزة
+            var userFeaturedAds = await _context.FeaturedAds
+                .Include(f => f.Product)
+                .Where(f => f.SellerId == id)
+                .ToListAsync();
+
+            // الحصول على طلبات المستخدم
+            var userOrders = await _context.Orders
+                .Where(o => o.UserId == id)
+                .ToListAsync();
+
+            // إرسال البيانات إلى العرض
+            ViewBag.UserProducts = userProducts;
+            ViewBag.UserFeaturedAds = userFeaturedAds;
+            ViewBag.UserOrders = userOrders;
+
+            return View(user);
+        }
+
+        // GET: Admin/BlockedUsers
+        public async Task<IActionResult> BlockedUsers()
+        {
+            // التحقق من صلاحيات المستخدم
+            var accessCheck = CheckAdminAccess();
+            if (accessCheck != null)
+                return accessCheck;
+
+            // الحصول على المستخدمين المحظورين فقط (حالة IsActive = false)
+            var blockedUsers = await _context.Users
+                .Where(u => u.IsActive == false)
+                .ToListAsync();
+
+            return View(blockedUsers);
+        }
+
+        // Orders Management
+        public async Task<IActionResult> Orders(string status = "all")
+        {
+            try
+            {
+                var query = _context.Orders
+                    .Include(o => o.User)
+                    .Include(o => o.OrderItems)
+                        .ThenInclude(oi => oi.Product)
+                    .Include(o => o.Payments)
+                    .AsQueryable();
+
+                // Filter by status if not "all"
+                if (status != "all")
+                {
+                    query = query.Where(o => o.Status == status);
+                }
+
+                // Get orders and map to view model
+                var orders = await query
+                    .OrderByDescending(o => o.CreatedAt)
+                    .Select(o => new OrderViewModel
+                    {
+                        Id = o.Id,
+                        OrderNumber = o.OrderNumber,
+                        CustomerName = o.User.Name,
+                        CustomerEmail = o.User.Email,
+                        CustomerPhone = o.User.Phone,
+                        TotalAmount = o.TotalAmount,
+                        Status = o.Status,
+                        ShippingAddress = o.ShippingAddress,
+                        BillingAddress = o.BillingAddress,
+                        PaymentMethod = o.PaymentMethod,
+                        PaymentStatus = o.PaymentStatus,
+                        CreatedAt = o.CreatedAt ?? DateTime.Now,
+                        UpdatedAt = o.UpdatedAt,
+                        OrderItems = o.OrderItems.Select(oi => new OrderItemViewModel
+                        {
+                            Id = oi.Id,
+                            ProductId = oi.ProductId ?? 0,
+                            ProductName = oi.Product.ProductName,
+                            ProductImage = oi.Product.ImageUrl,
+                            Quantity = oi.Quantity,
+                            UnitPrice = oi.UnitPrice,
+                            TotalPrice = oi.TotalPrice
+                        }).ToList(),
+                        Payments = o.Payments.Select(p => new PaymentViewModel
+                        {
+                            Id = p.Id,
+                            Amount = p.Amount,
+                            PaymentMethod = p.PaymentMethod,
+                            PaymentStatus = p.PaymentStatus,
+                            TransactionId = p.TransactionId,
+                            PaymentDate = p.PaymentDate ?? DateTime.Now,
+                            LastUpdated = p.LastUpdated
+                        }).ToList()
+                    })
+                    .ToListAsync();
+
+                ViewBag.CurrentStatus = status;
+                return View(orders);
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                _logger.LogError(ex, "Error retrieving orders");
+                TempData["ErrorMessage"] = "An error occurred while retrieving orders.";
+                return View(new List<OrderViewModel>());
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrderDetails(int id)
+        {
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.User)
+                    .Include(o => o.OrderItems)
+                        .ThenInclude(oi => oi.Product)
+                    .Include(o => o.Payments)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "Order not found" });
+                }
+
+                var orderViewModel = new OrderViewModel
+                {
+                    Id = order.Id,
+                    OrderNumber = order.OrderNumber,
+                    CustomerName = order.User.Name,
+                    CustomerEmail = order.User.Email,
+                    CustomerPhone = order.User.Phone,
+                    TotalAmount = order.TotalAmount,
+                    Status = order.Status,
+                    ShippingAddress = order.ShippingAddress,
+                    BillingAddress = order.BillingAddress,
+                    PaymentMethod = order.PaymentMethod,
+                    PaymentStatus = order.PaymentStatus,
+                    CreatedAt = order.CreatedAt ?? DateTime.Now,
+                    UpdatedAt = order.UpdatedAt,
+                    OrderItems = order.OrderItems.Select(oi => new OrderItemViewModel
+                    {
+                        Id = oi.Id,
+                        ProductId = oi.ProductId ?? 0,
+                        ProductName = oi.Product.ProductName,
+                        ProductImage = oi.Product.ImageUrl,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice,
+                        TotalPrice = oi.TotalPrice
+                    }).ToList(),
+                    Payments = order.Payments.Select(p => new PaymentViewModel
+                    {
+                        Id = p.Id,
+                        Amount = p.Amount,
+                        PaymentMethod = p.PaymentMethod,
+                        PaymentStatus = p.PaymentStatus,
+                        TransactionId = p.TransactionId,
+                        PaymentDate = p.PaymentDate ?? DateTime.Now,
+                        LastUpdated = p.LastUpdated
+                    }).ToList()
+                };
+
+                return Json(new { success = true, data = orderViewModel });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving order details for order {OrderId}", id);
+                return Json(new { success = false, message = "An error occurred while retrieving order details" });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, string status)
+        {
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.Payments)
+                    .FirstOrDefaultAsync(o => o.Id == orderId);
+
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "Order not found" });
+                }
+
+                // Check if payment is completed
+                var isPaymentCompleted = order.Payments.Any(p => p.PaymentStatus == "Paid");
+                if (!isPaymentCompleted)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Cannot update order status. Payment has not been completed." 
+                    });
+                }
+
+                // Update order status
+                order.Status = status;
+                order.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating order status for order {OrderId}", orderId);
+                return Json(new { 
+                    success = false, 
+                    message = "An error occurred while updating the order status" 
+                });
+            }
         }
     }
 } 

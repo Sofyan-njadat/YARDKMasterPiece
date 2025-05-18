@@ -1,0 +1,223 @@
+@model IEnumerable<YARDK.Models.User>
+
+@{
+    ViewData["Title"] = "Admins";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-user-shield me-2"></i>
+                        <span class="en-text">Admins Management</span>
+                        <span class="ar-text d-none">إدارة المسؤولين</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover data-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span class="en-text">ID</span>
+                                        <span class="ar-text d-none">المعرف</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Name</span>
+                                        <span class="ar-text d-none">الاسم</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Email</span>
+                                        <span class="ar-text d-none">البريد الإلكتروني</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Phone</span>
+                                        <span class="ar-text d-none">الهاتف</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Status</span>
+                                        <span class="ar-text d-none">الحالة</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Created At</span>
+                                        <span class="ar-text d-none">تاريخ الإنشاء</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Actions</span>
+                                        <span class="ar-text d-none">الإجراءات</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.Id</td>
+                                        <td>@item.Name</td>
+                                        <td>@item.Email</td>
+                                        <td>@item.Phone</td>
+                                        <td>
+                                            @if (item.IsActive == true)
+                                            {
+                                                <span class="badge bg-success">
+                                                    <span class="en-text">Active</span>
+                                                    <span class="ar-text d-none">نشط</span>
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <span class="en-text">Inactive</span>
+                                                    <span class="ar-text d-none">معطل</span>
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @(item.CreatedAt?.ToString("yyyy-MM-dd") ?? "-")
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons d-flex gap-2">
+                                                @if (item.Id.ToString() != Context.Request.Cookies["UserId"])
+                                                {
+                                                    <form asp-action="RemoveAdmin" asp-route-id="@item.Id" method="post" class="d-inline removeAdminForm">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="button" class="btn btn-sm btn-outline-danger admin-action-btn" 
+                                                                data-bs-toggle="tooltip" 
+                                                                data-id="@item.Id"
+                                                                data-name="@item.Name"
+                                                                data-action="remove-admin"
+                                                                data-title-en="Remove Admin" 
+                                                                data-title-ar="إزالة مسؤول"
+                                                                data-text-en="Are you sure you want to remove admin privileges from this user?" 
+                                                                data-text-ar="هل أنت متأكد من رغبتك في إزالة صلاحيات المسؤول من هذا المستخدم؟"
+                                                                data-confirm-btn-en="Remove" 
+                                                                data-confirm-btn-ar="إزالة"
+                                                                data-cancel-btn-en="Cancel" 
+                                                                data-cancel-btn-ar="إلغاء"
+                                                                data-bs-title-en="Remove Admin" 
+                                                                data-bs-title-ar="إزالة مسؤول">
+                                                            <i class="fas fa-user-minus"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge px-3 py-2" style="background-color: #5182b6;">
+                                                        <span class="en-text">Current User</span>
+                                                        <span class="ar-text d-none">المستخدم الحالي</span>
+                                                    </span>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- إضافة مكتبة SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // تهيئة tooltips مع دعم اللغات
+            const updateTooltips = function() {
+                $('[data-bs-toggle="tooltip"]').each(function() {
+                    const tooltip = bootstrap.Tooltip.getInstance(this);
+                    if (tooltip) {
+                        tooltip.dispose();
+                    }
+                    
+                    // تحديد عنوان التلميح بناءً على اللغة الحالية
+                    const lang = window.currentLang || 'en';
+                    const title = lang === 'ar' ? 
+                        $(this).data('bs-title-ar') : 
+                        $(this).data('bs-title-en');
+                    
+                    $(this).attr('title', title);
+                });
+                
+                // إعادة تهيئة التلميحات
+                $('[data-bs-toggle="tooltip"]').tooltip();
+            };
+            
+            // تحديث التلميحات عند تغيير اللغة
+            $(document).on('languageChanged', function(e, lang) {
+                updateTooltips();
+            });
+
+            // التهيئة الأولية للتلميحات
+            updateTooltips();
+            
+            // إضافة معالج أحداث SweetAlert2 للأزرار
+            $('.admin-action-btn').on('click', function() {
+                // إلغاء التلميح
+                $(this).tooltip('hide');
+                
+                const lang = window.currentLang || 'en';
+                const userId = $(this).data('id');
+                const userName = $(this).data('name');
+                const action = $(this).data('action');
+                
+                // تحديد النصوص حسب اللغة
+                const title = lang === 'ar' ? 
+                    $(this).data('title-ar') : 
+                    $(this).data('title-en');
+                    
+                const text = lang === 'ar' ? 
+                    $(this).data('text-ar') : 
+                    $(this).data('text-en');
+                
+                const confirmButtonText = lang === 'ar' ? 
+                    $(this).data('confirm-btn-ar') : 
+                    $(this).data('confirm-btn-en');
+                    
+                const cancelButtonText = lang === 'ar' ? 
+                    $(this).data('cancel-btn-ar') : 
+                    $(this).data('cancel-btn-en');
+                
+                // تعيين الألوان المناسبة
+                const confirmButtonColor = '#d33';
+                
+                // إعداد محاذاة SweetAlert2 حسب اتجاه اللغة
+                const rtl = lang === 'ar';
+                
+                // عرض SweetAlert2
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: confirmButtonColor,
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: confirmButtonText,
+                    cancelButtonText: cancelButtonText,
+                    focusCancel: true,
+                    rtl: rtl
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // تقديم النموذج عند التأكيد
+                        $(this).closest('form').submit();
+                    }
+                });
+            });
+        });
+    </script>
+} 

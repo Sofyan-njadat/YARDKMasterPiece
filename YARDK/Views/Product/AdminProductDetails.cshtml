@@ -1,0 +1,110 @@
+@model YARDK.Models.Product
+@{
+    ViewData["Title"] = "Product Details";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 text-white">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span class="en-text">Product Details</span>
+                            <span class="ar-text d-none">تفاصيل المنتج</span>
+                        </h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            @if (Model.ProductImages != null && Model.ProductImages.Any())
+                            {
+                                <div id="carouselProductImages" class="carousel slide mb-3" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        @{
+                                            var images = Model.ProductImages.ToList();
+                                            for (int i = 0; i < images.Count; i++)
+                                            {
+                                                var img = images[i];
+                                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                                    <img src="@img.ImageUrl" class="d-block w-100 rounded" alt="Product Image" style="height: 300px; object-fit: cover;">
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                    @if (Model.ProductImages.Count > 1)
+                                    {
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselProductImages" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselProductImages" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    }
+                                </div>
+                            }
+                            else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="@Model.ImageUrl" class="img-fluid rounded mb-3" alt="Product Image" style="height: 300px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <img src="~/img/no-image.jpg" class="img-fluid rounded mb-3" alt="No Image" style="height: 300px; object-fit: cover;">
+                            }
+                        </div>
+                        <div class="col-md-7">
+                            <h3 class="mb-2" style="color: #003A66;">@Model.ProductName</h3>
+                            <p class="mb-1"><strong class="en-text">Category:</strong><strong class="ar-text d-none">الفئة:</strong> @Model.Category</p>
+                            <p class="mb-1"><strong class="en-text">Price:</strong><strong class="ar-text d-none">السعر:</strong> JD @Model.Price</p>
+                            <p class="mb-1"><strong class="en-text">Quantity:</strong><strong class="ar-text d-none">الكمية:</strong> @Model.Quantity</p>
+                            <p class="mb-1">
+                                <strong class="en-text">Status:</strong>
+                                <strong class="ar-text d-none">الحالة:</strong>
+                                @if (Model.Quantity > 0)
+                                {
+                                    <span class="badge bg-success">
+                                        <span class="en-text">Active</span>
+                                        <span class="ar-text d-none">نشط</span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">
+                                        <span class="en-text">Inactive</span>
+                                        <span class="ar-text d-none">غير نشط</span>
+                                    </span>
+                                }
+                            </p>
+                            <p class="mb-1"><strong class="en-text">Seller:</strong><strong class="ar-text d-none">البائع:</strong> @Model.Seller?.Name</p>
+                            <p class="mb-1"><strong class="en-text">Created At:</strong><strong class="ar-text d-none">تاريخ الإضافة:</strong> @(Model.CreatedAt?.ToString("yyyy-MM-dd") ?? "-")</p>
+                            <hr />
+                            <p><strong class="en-text">Description:</strong><strong class="ar-text d-none">الوصف:</strong><br />@Model.Description</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    <a asp-action="AllProducts" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        <span class="en-text">Back to Products</span>
+                        <span class="ar-text d-none">العودة للمنتجات</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Carousel init
+        var carousel = document.querySelector('#carouselProductImages');
+        if (carousel) {
+            var bsCarousel = new bootstrap.Carousel(carousel);
+        }
+    </script>
+} 

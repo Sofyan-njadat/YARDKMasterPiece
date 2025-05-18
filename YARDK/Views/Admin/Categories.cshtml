@@ -1,96 +1,95 @@
 @model IEnumerable<YARDK.Models.Category>
+
 @{
-    ViewData["Title"] = "Categories Management";
-    Layout = "_Layout";
+    ViewData["Title"] = "Categories";
+    Layout = "_AdminLayout";
 }
 
-<div class="container-fluid bg-breadcrumb">
-    <div class="container text-center py-5" style="max-width: 900px;">
-        <h1 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Categories Management</h1>
-        <ol class="breadcrumb justify-content-center text-white mb-0 wow fadeInDown" data-wow-delay="0.3s">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white">Home</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard" class="text-white">Admin</a></li>
-            <li class="breadcrumb-item active text-secondary">Categories</li>
-        </ol>
-    </div>
-</div>
-
-<div class="container-fluid py-5">
-    <div class="container py-5">
-        <div class="row mb-4">
-            <div class="col-12 d-flex justify-content-between align-items-center">
-                <h2>Categories</h2>
-                <a asp-controller="Admin" asp-action="CreateCategory" class="btn btn-primary rounded-pill py-2 px-4">
-                    <i class="fas fa-plus me-2"></i>Create New Category
-                </a>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Image</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (Model != null && Model.Any())
-                                    {
-                                        foreach (var category in Model)
-                                        {
-                                            <tr>
-                                                <td>@category.Id</td>
-                                                <td>
-                                                    @if (!string.IsNullOrEmpty(category.ImageUrl))
-                                                    {
-                                                        <img src="@category.ImageUrl" alt="@category.CategoryName" style="width: 80px; height: 60px; object-fit: cover;" class="img-thumbnail" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-muted">No image</span>
-                                                    }
-                                                </td>
-                                                <td>@category.CategoryName</td>
-                                                <td>
-                                                    @if (!string.IsNullOrEmpty(category.Description) && category.Description.Length > 50)
-                                                    {
-                                                        @(category.Description.Substring(0, 50) + "...")
-                                                    }
-                                                    else
-                                                    {
-                                                        @category.Description
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <a asp-action="EditCategory" asp-route-id="@category.Id" class="btn btn-sm btn-primary me-2">
-                                                            <i class="fas fa-edit"></i> Edit
-                                                        </a>
-                                                        <a asp-action="DeleteCategory" asp-route-id="@category.Id" class="btn btn-sm btn-danger">
-                                                            <i class="fas fa-trash"></i> Delete
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="5" class="text-center">No categories found. <a asp-action="CreateCategory">Add your first category</a></td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-list me-2"></i>
+                        <span class="en-text">Categories</span>
+                        <span class="ar-text d-none">الفئات</span>
+                    </h5>
+                    <a asp-controller="Admin" asp-action="CreateCategory" class="btn btn-sm btn-light">
+                        <i class="fas fa-plus me-1"></i>
+                        <span class="en-text">Add New Category</span>
+                        <span class="ar-text d-none">إضافة فئة جديدة</span>
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Message"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["Message"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
+                    }
+                    <div class="table-responsive">
+                        <table class="table table-hover data-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span class="en-text">Image</span>
+                                        <span class="ar-text d-none">الصورة</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Name</span>
+                                        <span class="ar-text d-none">الاسم</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Description</span>
+                                        <span class="ar-text d-none">الوصف</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Actions</span>
+                                        <span class="ar-text d-none">الإجراءات</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                            {
+                                                <img src="@item.ImageUrl" alt="@item.CategoryName" class="img-thumbnail" style="width: 100px; height: 60px; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <img src="~/img/no-image.jpg" alt="No Image" class="img-thumbnail" style="width: 100px; height: 60px; object-fit: cover;" />
+                                            }
+                                        </td>
+                                        <td>@item.CategoryName</td>
+                                        <td>
+                                            @if (item.Description != null && item.Description.Length > 100)
+                                            {
+                                                @(item.Description.Substring(0, 100) + "...")
+                                            }
+                                            else
+                                            {
+                                                @item.Description
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons d-flex gap-2">
+                                                <a asp-action="EditCategory" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-title-en="Edit" data-bs-title-ar="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a asp-action="DeleteCategory" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-title-en="Delete" data-bs-title-ar="حذف">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -100,8 +99,35 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // Initialize any JavaScript functionality for this page
+        $(document).ready(function() {
+            // تهيئة tooltips مع دعم اللغات
+            const updateTooltips = function() {
+                $('[data-bs-toggle="tooltip"]').each(function() {
+                    const tooltip = bootstrap.Tooltip.getInstance(this);
+                    if (tooltip) {
+                        tooltip.dispose();
+                    }
+                    
+                    // تحديد عنوان التلميح بناءً على اللغة الحالية
+                    const lang = window.currentLang || 'en';
+                    const title = lang === 'ar' ? 
+                        $(this).data('bs-title-ar') : 
+                        $(this).data('bs-title-en');
+                    
+                    $(this).attr('title', title);
+                });
+                
+                // إعادة تهيئة التلميحات
+                $('[data-bs-toggle="tooltip"]').tooltip();
+            };
+            
+            // تحديث التلميحات عند تغيير اللغة
+            $(document).on('languageChanged', function(e, lang) {
+                updateTooltips();
+            });
+            
+            // التهيئة الأولية للتلميحات
+            updateTooltips();
         });
     </script>
 } 

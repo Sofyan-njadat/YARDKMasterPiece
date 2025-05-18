@@ -1,0 +1,602 @@
+@model IEnumerable<YARDK.Models.OrderViewModel>
+@{
+    ViewData["Title"] = "Orders Management";
+    Layout = "_AdminLayout";
+
+    // Helper method to get badge class based on status
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-warning",
+            "Processing" => "bg-info",
+            "Delivered" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+<!-- Header Start -->
+<div class="container-fluid py-4">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            <span class="en-text">Orders Management</span>
+                            <span class="ar-text d-none">إدارة الطلبات</span>
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <!-- Filter Dropdown -->
+                            <div class="dropdown">
+                                <button class="btn btn-light dropdown-toggle" type="button" id="statusFilter" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-filter me-2"></i>
+                                    <span class="en-text">Filter by Status</span>
+                                    <span class="ar-text d-none">تصفية حسب الحالة</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="statusFilter">
+                                    <li>
+                                        <a class="dropdown-item @(ViewBag.CurrentStatus == "all" ? "active" : "")" 
+                                           asp-action="Orders" asp-route-status="all">
+                                            <span class="en-text">All Orders</span>
+                                            <span class="ar-text d-none">جميع الطلبات</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(ViewBag.CurrentStatus == "Pending" ? "active" : "")" 
+                                           asp-action="Orders" asp-route-status="Pending">
+                                            <span class="en-text">Pending</span>
+                                            <span class="ar-text d-none">قيد الانتظار</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(ViewBag.CurrentStatus == "Processing" ? "active" : "")" 
+                                           asp-action="Orders" asp-route-status="Processing">
+                                            <span class="en-text">Processing</span>
+                                            <span class="ar-text d-none">قيد المعالجة</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(ViewBag.CurrentStatus == "Delivered" ? "active" : "")" 
+                                           asp-action="Orders" asp-route-status="Delivered">
+                                            <span class="en-text">Delivered</span>
+                                            <span class="ar-text d-none">تم التوصيل</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <span class="en-text">Order #</span>
+                                            <span class="ar-text d-none">رقم الطلب</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Customer</span>
+                                            <span class="ar-text d-none">العميل</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Total</span>
+                                            <span class="ar-text d-none">المجموع</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Payment Status</span>
+                                            <span class="ar-text d-none">حالة الدفع</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Order Status</span>
+                                            <span class="ar-text d-none">حالة الطلب</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Date</span>
+                                            <span class="ar-text d-none">التاريخ</span>
+                                        </th>
+                                        <th>
+                                            <span class="en-text">Actions</span>
+                                            <span class="ar-text d-none">الإجراءات</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model)
+                                    {
+                                        <tr>
+                                            <td>@order.OrderNumber</td>
+                                            <td>
+                                                <div>@order.CustomerName</div>
+                                                <small class="text-muted">@order.CustomerEmail</small>
+                                            </td>
+                                            <td>JD @order.TotalAmount.ToString("N2")</td>
+                                            <td>
+                                                @if (order.Payments.Any(p => p.PaymentStatus == "Paid"))
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <span class="en-text">Paid</span>
+                                                        <span class="ar-text d-none">مدفوع</span>
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">
+                                                        <span class="en-text">Unpaid</span>
+                                                        <span class="ar-text d-none">غير مدفوع</span>
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge @GetStatusBadgeClass(order.Status)">
+                                                    @switch (order.Status)
+                                                    {
+                                                        case "Pending":
+                                                            <span class="en-text">Pending</span>
+                                                            <span class="ar-text d-none">قيد الانتظار</span>
+                                                            break;
+                                                        case "Processing":
+                                                            <span class="en-text">Processing</span>
+                                                            <span class="ar-text d-none">قيد المعالجة</span>
+                                                            break;
+                                                        case "Delivered":
+                                                            <span class="en-text">Delivered</span>
+                                                            <span class="ar-text d-none">تم التوصيل</span>
+                                                            break;
+                                                        default:
+                                                            <span class="en-text">@order.Status</span>
+                                                            <span class="ar-text d-none">@order.Status</span>
+                                                            break;
+                                                    }
+                                                </span>
+                                            </td>
+                                            <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-primary" 
+                                                            onclick="viewOrderDetails(@order.Id)" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#orderDetailsModal">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    @if (order.Payments.Any(p => p.PaymentStatus == "Paid"))
+                                                    {
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" 
+                                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <i class="fas fa-cog"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                <li>
+                                                                    <a class="dropdown-item" href="#" 
+                                                                       onclick="updateOrderStatus(@order.Id, 'Processing')">
+                                                                        <span class="en-text">Processing</span>
+                                                                        <span class="ar-text d-none">قيد المعالجة</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item" href="#" 
+                                                                       onclick="updateOrderStatus(@order.Id, 'Delivered')">
+                                                                        <span class="en-text">Delivered</span>
+                                                                        <span class="ar-text d-none">تم التوصيل</span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">
+                                <span class="en-text">No orders found</span>
+                                <span class="ar-text d-none">لا توجد طلبات</span>
+                            </h5>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsModalLabel">
+                    <span class="en-text">Order Details</span>
+                    <span class="ar-text d-none">تفاصيل الطلب</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="orderDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Arabic text alignment and font */
+        .swal2-title-arabic,
+        .swal2-html-container-arabic {
+            direction: rtl;
+            text-align: right;
+            font-family: 'Cairo', sans-serif !important;
+        }
+
+        /* Arabic button styles */
+        .swal2-confirm-button-arabic,
+        .swal2-cancel-button-arabic {
+            font-family: 'Cairo', sans-serif !important;
+        }
+
+        /* RTL support for SweetAlert */
+        [lang="ar"] .swal2-popup,
+        .swal2-popup-arabic {
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Arabic font for SweetAlert */
+        .arabic-font {
+            font-family: 'Cairo', sans-serif !important;
+        }
+
+        /* Ensure proper text alignment in SweetAlert */
+        .swal2-popup-arabic .swal2-title,
+        .swal2-popup-arabic .swal2-html-container {
+            text-align: right !important;
+        }
+
+        /* Ensure proper button alignment in SweetAlert */
+        .swal2-popup-arabic .swal2-actions {
+            flex-direction: row-reverse !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Get current language
+        function getCurrentLanguage() {
+            return localStorage.getItem('admin-language') || 'ar';
+        }
+
+        // Get status badge class
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'Pending': return 'bg-warning';
+                case 'Processing': return 'bg-info';
+                case 'Delivered': return 'bg-success';
+                default: return 'bg-secondary';
+            }
+        }
+
+        // Get status text based on language
+        function getStatusText(status, isArabic) {
+            const statusMap = {
+                'Pending': {
+                    en: 'Pending',
+                    ar: 'قيد الانتظار'
+                },
+                'Processing': {
+                    en: 'Processing',
+                    ar: 'قيد المعالجة'
+                },
+                'Delivered': {
+                    en: 'Delivered',
+                    ar: 'تم التوصيل'
+                }
+            };
+            return isArabic ? statusMap[status].ar : statusMap[status].en;
+        }
+
+        // Get SweetAlert texts based on language
+        function getSweetAlertTexts(isArabic) {
+            return {
+                confirmTitle: isArabic ? 'تأكيد تغيير الحالة' : 'Confirm Status Change',
+                confirmText: isArabic ? 'هل أنت متأكد من تغيير حالة الطلب؟' : 'Are you sure you want to change the order status?',
+                confirmButton: isArabic ? 'نعم، قم بالتغيير' : 'Yes, change it',
+                cancelButton: isArabic ? 'إلغاء' : 'Cancel',
+                successTitle: isArabic ? 'تم التحديث!' : 'Updated!',
+                successText: isArabic ? 'تم تحديث حالة الطلب بنجاح' : 'Order status has been updated successfully',
+                errorTitle: isArabic ? 'خطأ!' : 'Error!',
+                errorText: isArabic ? 'حدث خطأ أثناء تحديث حالة الطلب' : 'An error occurred while updating the order status',
+                okButton: isArabic ? 'حسناً' : 'OK'
+            };
+        }
+
+        // View order details
+        function viewOrderDetails(orderId) {
+            const isArabic = getCurrentLanguage() === 'ar';
+            
+            // Show loading state
+            $('#orderDetailsContent').html(`
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `);
+
+            // Fetch order details
+            $.get('@Url.Action("GetOrderDetails", "Admin")', { id: orderId })
+                .done(function(response) {
+                    if (response.success) {
+                        const order = response.data;
+                        let itemsHtml = '';
+                        
+                        // Build order items HTML
+                        order.orderItems.forEach(item => {
+                            itemsHtml += `
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="${item.productImage}" alt="${item.productName}" 
+                                         class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <div class="ms-3">
+                                        <h6 class="mb-0">${item.productName}</h6>
+                                        <small class="text-muted">
+                                            ${item.quantity} x JD ${item.unitPrice.toFixed(2)}
+                                        </small>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <strong>JD ${item.totalPrice.toFixed(2)}</strong>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        // Build payment history HTML
+                        let paymentsHtml = '';
+                        order.payments.forEach(payment => {
+                            paymentsHtml += `
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <strong>${payment.paymentMethod}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            ${new Date(payment.paymentDate).toLocaleString()}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <span class="badge ${payment.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'}">
+                                            ${payment.paymentStatus}
+                                        </span>
+                                        <br>
+                                        <strong>JD ${payment.amount.toFixed(2)}</strong>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        // Set modal content
+                        $('#orderDetailsContent').html(`
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">
+                                        <span class="en-text">Order Information</span>
+                                        <span class="ar-text d-none">معلومات الطلب</span>
+                                    </h6>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Order Number:</span>
+                                            <span class="ar-text d-none">رقم الطلب:</span>
+                                        </strong>
+                                        ${order.orderNumber}
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Date:</span>
+                                            <span class="ar-text d-none">التاريخ:</span>
+                                        </strong>
+                                        ${new Date(order.createdAt).toLocaleString()}
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Status:</span>
+                                            <span class="ar-text d-none">الحالة:</span>
+                                        </strong>
+                                        <span class="badge ${getStatusBadgeClass(order.status)}">
+                                            ${getStatusText(order.status, getCurrentLanguage() === 'ar')}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">
+                                        <span class="en-text">Customer Information</span>
+                                        <span class="ar-text d-none">معلومات العميل</span>
+                                    </h6>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Name:</span>
+                                            <span class="ar-text d-none">الاسم:</span>
+                                        </strong>
+                                        ${order.customerName}
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Email:</span>
+                                            <span class="ar-text d-none">البريد الإلكتروني:</span>
+                                        </strong>
+                                        ${order.customerEmail}
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span class="en-text">Phone:</span>
+                                            <span class="ar-text d-none">الهاتف:</span>
+                                        </strong>
+                                        ${order.customerPhone}
+                                    </p>
+                                </div>
+                            </div>
+                            <hr>
+                            <h6 class="mb-3">
+                                <span class="en-text">Order Items</span>
+                                <span class="ar-text d-none">عناصر الطلب</span>
+                            </h6>
+                            ${itemsHtml}
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <span class="en-text">Total Amount:</span>
+                                    <span class="ar-text d-none">المجموع الكلي:</span>
+                                </h6>
+                                <h5 class="mb-0">JD ${order.totalAmount.toFixed(2)}</h5>
+                            </div>
+                            <hr>
+                            <h6 class="mb-3">
+                                <span class="en-text">Payment History</span>
+                                <span class="ar-text d-none">سجل الدفع</span>
+                            </h6>
+                            ${paymentsHtml}
+                        `);
+                    } else {
+                        $('#orderDetailsContent').html(`
+                            <div class="alert alert-danger">
+                                <span class="en-text">Error loading order details</span>
+                                <span class="ar-text d-none">خطأ في تحميل تفاصيل الطلب</span>
+                            </div>
+                        `);
+                    }
+                })
+                .fail(function() {
+                    $('#orderDetailsContent').html(`
+                        <div class="alert alert-danger">
+                            <span class="en-text">Error loading order details</span>
+                            <span class="ar-text d-none">خطأ في تحميل تفاصيل الطلب</span>
+                        </div>
+                    `);
+                });
+        }
+
+        // Update order status
+        function updateOrderStatus(orderId, newStatus) {
+            const isArabic = getCurrentLanguage() === 'ar';
+            const statusText = getStatusText(newStatus, isArabic);
+            const texts = getSweetAlertTexts(isArabic);
+            
+            // Set SweetAlert default options for RTL support
+            const swalOptions = {
+                title: texts.confirmTitle,
+                html: `${texts.confirmText}<br><strong>${statusText}</strong>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: texts.confirmButton,
+                cancelButtonText: texts.cancelButton,
+                reverseButtons: isArabic,
+                customClass: {
+                    popup: isArabic ? 'swal2-popup-arabic' : '',
+                    title: isArabic ? 'swal2-title-arabic' : '',
+                    htmlContainer: isArabic ? 'swal2-html-container-arabic' : '',
+                    confirmButton: isArabic ? 'swal2-confirm-button-arabic' : '',
+                    cancelButton: isArabic ? 'swal2-cancel-button-arabic' : ''
+                }
+            };
+
+            // Set RTL for Arabic
+            if (isArabic) {
+                swalOptions.direction = 'rtl';
+            }
+
+            // Set font family based on language
+            if (isArabic) {
+                swalOptions.customClass.popup += ' arabic-font';
+            }
+
+            Swal.fire(swalOptions).then((result) => {
+                if (result.isConfirmed) {
+                    // Get CSRF token
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    
+                    // Send update request
+                    $.ajax({
+                        url: '@Url.Action("UpdateOrderStatus", "Admin")',
+                        type: 'POST',
+                        data: {
+                            orderId: orderId,
+                            status: newStatus,
+                            __RequestVerificationToken: token
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: texts.successTitle,
+                                    text: texts.successText,
+                                    icon: 'success',
+                                    confirmButtonText: texts.okButton,
+                                    direction: isArabic ? 'rtl' : 'ltr',
+                                    customClass: {
+                                        popup: isArabic ? 'swal2-popup-arabic arabic-font' : '',
+                                        title: isArabic ? 'swal2-title-arabic' : '',
+                                        htmlContainer: isArabic ? 'swal2-html-container-arabic' : '',
+                                        confirmButton: isArabic ? 'swal2-confirm-button-arabic' : ''
+                                    }
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: texts.errorTitle,
+                                    text: response.message || texts.errorText,
+                                    icon: 'error',
+                                    confirmButtonText: texts.okButton,
+                                    direction: isArabic ? 'rtl' : 'ltr',
+                                    customClass: {
+                                        popup: isArabic ? 'swal2-popup-arabic arabic-font' : '',
+                                        title: isArabic ? 'swal2-title-arabic' : '',
+                                        htmlContainer: isArabic ? 'swal2-html-container-arabic' : '',
+                                        confirmButton: isArabic ? 'swal2-confirm-button-arabic' : ''
+                                    }
+                                });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({
+                                title: texts.errorTitle,
+                                text: texts.errorText,
+                                icon: 'error',
+                                confirmButtonText: texts.okButton,
+                                direction: isArabic ? 'rtl' : 'ltr',
+                                customClass: {
+                                    popup: isArabic ? 'swal2-popup-arabic arabic-font' : '',
+                                    title: isArabic ? 'swal2-title-arabic' : '',
+                                    htmlContainer: isArabic ? 'swal2-html-container-arabic' : '',
+                                    confirmButton: isArabic ? 'swal2-confirm-button-arabic' : ''
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+} 

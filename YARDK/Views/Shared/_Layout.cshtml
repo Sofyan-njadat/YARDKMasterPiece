@@ -28,6 +28,8 @@
 
     <!-- Template Stylesheet -->
     <link href="~/css/style.css" rel="stylesheet">
+    
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
 	<header>
@@ -44,7 +46,7 @@
 			<nav class="navbar navbar-expand-lg navbar-light bg-white px-4 px-lg-5 py-3 py-lg-0">
 				<a href="" class="navbar-brand p-0">
 					<h1 class="display-5 text-secondary m-0">
-						<img src="~/img/logoIcon-removebg-preview.png" class="img-fluid"
+						<img src="~/img/logoNav.png" class="img-fluid"
 							 alt="">YARDK
 					</h1>
 				</a>
@@ -85,8 +87,7 @@
 							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 								@if (Context.Request.Cookies["UserRole"] != null && Context.Request.Cookies["UserRole"] == "Admin")
 								{
-									<a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Admin Dashboard</a>
-									<a class="dropdown-item" asp-controller="Admin" asp-action="Categories">Manage Categories</a>
+									<a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Dashboard</a>
 									<div class="dropdown-divider"></div>
 									<a class="dropdown-item" href="@Url.Action("Logout", "User")">Logout</a>
 								}
@@ -94,6 +95,7 @@
 								{
 									<a class="dropdown-item" asp-controller="User" asp-action="Profile">Profile</a>
 									<a class="dropdown-item" asp-controller="User" asp-action="MyAds" >My Ads</a>
+									<a class="dropdown-item" asp-controller="Product" asp-action="AllProducts">All Products</a>
 									<a class="dropdown-item" asp-controller="User" asp-action="MyOrders" >My Orders</a>
 									<a class="dropdown-item" asp-controller="User" asp-action="PaymentMethod">Payment Method</a>
 								<div class="dropdown-divider"></div>

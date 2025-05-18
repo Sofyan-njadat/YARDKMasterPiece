@@ -13,5 +13,6 @@ namespace YARDK.Models
         public decimal Price { get; set; }
         public string ImageUrl { get; set; }
         public string SellerName { get; set; }
+        public string Status { get; set; }
     }
 } 

@@ -1,81 +1,106 @@
 @model YARDK.Models.Category
+
 @{
     ViewData["Title"] = "Delete Category";
-    Layout = "_Layout";
+    Layout = "_AdminLayout";
 }
 
-<div class="container-fluid bg-breadcrumb">
-    <div class="container text-center py-5" style="max-width: 900px;">
-        <h1 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Delete Category</h1>
-        <ol class="breadcrumb justify-content-center text-white mb-0 wow fadeInDown" data-wow-delay="0.3s">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white">Home</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard" class="text-white">Admin</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Categories" class="text-white">Categories</a></li>
-            <li class="breadcrumb-item active text-secondary">Delete</li>
-        </ol>
-    </div>
-</div>
-
-<div class="container-fluid py-5">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-danger">
-                    <div class="card-header bg-danger text-white">
-                        <h4 class="card-title mb-0">Delete Category</h4>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-trash-alt me-2"></i>
+                        <span class="en-text">Delete Category</span>
+                        <span class="ar-text d-none">حذف الفئة</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>
+                            <span class="en-text">Warning:</span>
+                            <span class="ar-text d-none">تحذير:</span>
+                        </strong>
+                        <span class="en-text">Are you sure you want to delete this category? This action cannot be undone.</span>
+                        <span class="ar-text d-none">هل أنت متأكد من أنك تريد حذف هذه الفئة؟ لا يمكن التراجع عن هذا الإجراء.</span>
                     </div>
-                    <div class="card-body">
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Warning:</strong> Are you sure you want to delete this category? This action cannot be undone.
-                        </div>
-                        
-                        <div class="row mb-4 mt-4">
-                            <div class="col-md-5">
-                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                                {
-                                    <img src="@Model.ImageUrl" alt="@Model.CategoryName" class="img-thumbnail w-100" style="max-height: 200px; object-fit: cover;" />
-                                }
-                                else
-                                {
-                                    <div class="text-center p-5 bg-light">
-                                        <i class="fas fa-image text-muted fa-3x"></i>
-                                        <p class="text-muted mt-2">No image available</p>
-                                    </div>
-                                }
-                            </div>
-                            <div class="col-md-7">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Category Name</label>
-                                    <p>@Model.CategoryName</p>
-                                </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-3">
+                                    <span class="en-text">Category Name:</span>
+                                    <span class="ar-text d-none">اسم الفئة:</span>
+                                </dt>
+                                <dd class="col-sm-9">@Model.CategoryName</dd>
                                 
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Description</label>
-                                    <p>@Model.Description</p>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">ID</label>
-                                    <p>@Model.Id</p>
-                                </div>
-                            </div>
+                                <dt class="col-sm-3">
+                                    <span class="en-text">Description:</span>
+                                    <span class="ar-text d-none">الوصف:</span>
+                                </dt>
+                                <dd class="col-sm-9">@Model.Description</dd>
+                            </dl>
                         </div>
-                        
-                        <form asp-action="DeleteCategory" method="post">
-                            <input type="hidden" asp-for="Id" />
-                            <div class="d-flex justify-content-between mt-4">
-                                <a asp-action="Categories" class="btn btn-secondary rounded-pill px-4">
-                                    <i class="fas fa-arrow-left me-2"></i>Back to Categories
-                                </a>
-                                <button type="submit" class="btn btn-danger rounded-pill px-4">
-                                    <i class="fas fa-trash me-2"></i>Delete Permanently
-                                </button>
-                            </div>
-                        </form>
+                        <div class="col-md-4 text-center">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="@Model.ImageUrl" alt="@Model.CategoryName" class="img-thumbnail" 
+                                     style="max-height: 150px;" />
+                            }
+                            else
+                            {
+                                <div class="text-muted">
+                                    <i class="fas fa-image fa-4x mb-2"></i>
+                                    <p>
+                                        <span class="en-text">No image available</span>
+                                        <span class="ar-text d-none">لا توجد صورة متاحة</span>
+                                    </p>
+                                </div>
+                            }
+                        </div>
                     </div>
+                    
+                    <form asp-action="DeleteCategory" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Categories" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                <span class="en-text">Back to List</span>
+                                <span class="ar-text d-none">العودة إلى القائمة</span>
+                            </a>
+                            <button type="submit" class="btn btn-danger confirm-action" 
+                                    data-confirm-en="Are you sure you want to permanently delete this category?"
+                                    data-confirm-ar="هل أنت متأكد من أنك تريد حذف هذه الفئة بشكل نهائي؟">
+                                <i class="fas fa-trash-alt me-2"></i>
+                                <span class="en-text">Delete</span>
+                                <span class="ar-text d-none">حذف</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // تحديث رسالة التأكيد بناءً على اللغة الحالية
+            $('.confirm-action').on('click', function(e) {
+                const lang = window.currentLang || 'en';
+                const confirmMsg = lang === 'ar' ? 
+                    $(this).data('confirm-ar') : 
+                    $(this).data('confirm-en');
+                
+                if (!confirm(confirmMsg)) {
+                    e.preventDefault();
+                    return false;
+                }
+                return true;
+            });
+        });
+    </script>
+} 

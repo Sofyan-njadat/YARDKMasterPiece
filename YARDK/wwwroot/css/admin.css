@@ -1,0 +1,767 @@
+/********** Admin Dashboard Styles **********/
+
+:root {
+    --primary: #009CFF;
+    --secondary: #6c757d;
+    --light: #F8F9FA;
+    --dark: #191C24;
+}
+
+/* Layout */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    height: 100vh;
+    overflow-y: auto;
+    transition: all 0.3s;
+    z-index: 999;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+/* Mini Sidebar State */
+.sidebar.mini {
+    width: 70px;
+}
+
+.sidebar.mini .navbar-brand span {
+    display: none;
+}
+
+.sidebar.mini .nav-text {
+    display: none;
+}
+
+.sidebar.mini .navbar-nav .nav-link {
+    text-align: center;
+    padding: 15px 0;
+}
+
+.sidebar.mini .navbar-nav .nav-link i {
+    font-size: 1.25rem;
+    margin-right: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.sidebar.mini .mt-auto {
+    display: none;
+}
+
+.content {
+    margin-left: 250px;
+    min-height: 100vh;
+    transition: all 0.3s;
+    width: calc(100% - 250px);
+}
+
+.content.mini {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+}
+
+.content.open {
+    margin-left: 0;
+    width: 100%;
+}
+
+.sidebar.open {
+    margin-left: -250px;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        margin-left: -250px;
+    }
+
+    .sidebar.open {
+        margin-left: 0;
+    }
+
+    .content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .sidebar.mini {
+        margin-left: -70px;
+    }
+    
+    .sidebar.mini.open {
+        margin-left: 0;
+    }
+}
+
+/* Sidebar Navigation */
+.sidebar .navbar-nav .nav-link {
+    padding: 12px 20px;
+    color: var(--dark);
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.sidebar .navbar-nav .nav-link:hover,
+.sidebar .navbar-nav .nav-link.active {
+    color: var(--primary);
+    background: var(--light);
+    border-color: var(--primary);
+}
+
+.sidebar .navbar-nav .nav-link i {
+    width: 24px;
+    margin-right: 15px;
+    text-align: center;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.sidebar .navbar-brand {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.sidebar .navbar-brand img {
+    transition: all 0.3s;
+}
+
+.sidebar.mini .navbar-brand {
+    justify-content: center;
+    padding: 15px 0;
+}
+
+/* Cards and widgets */
+.stats-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+}
+
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Background Colors */
+.bg-primary-light {
+    background-color: rgba(0, 156, 255, 0.1);
+}
+
+.bg-success-light {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.bg-warning-light {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.bg-danger-light {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.bg-info-light {
+    background-color: rgba(23, 162, 184, 0.1);
+}
+
+.bg-secondary-light {
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 156, 255, 0.05);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Buttons */
+.btn-admin-primary {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-admin-primary:hover {
+    color: #fff;
+    background-color: #0085d5;
+    border-color: #0085d5;
+}
+
+/* Back to Top */
+.back-to-top {
+    position: fixed;
+    display: none;
+    right: 30px;
+    bottom: 30px;
+    z-index: 99;
+}
+
+
+/* Form Controls */
+.form-floating input.form-control {
+    height: 55px;
+}
+
+.form-floating input.form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary);
+}
+
+.form-floating textarea.form-control {
+    height: 150px;
+}
+
+.form-floating textarea.form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary);
+}
+
+/* Progress Bars */
+.progress {
+    height: 12px;
+    margin-bottom: 15px;
+}
+
+.progress .progress-bar {
+    width: 0px;
+    transition: 2s;
+}
+
+/* Notification Dropdown */
+.dropdown-menu {
+    padding: 10px;
+    border: none;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.dropdown-item:hover {
+    background-color: var(--light);
+}
+
+/* Charts */
+canvas {
+    max-width: 100%;
+}
+
+/* Sales Table */
+#sales-chart .table-responsive {
+    max-height: 200px;
+    margin-bottom: 15px;
+}
+
+#sales-chart .table {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+#sales-chart .table th,
+#sales-chart .table td {
+    padding: 0.5rem 0.75rem;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+}
+
+/* Button Outline Info */
+.btn-outline-info {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-info:hover {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Chart Styles */
+canvas {
+    max-width: 100%;
+}
+
+.chart-container {
+    position: relative;
+    margin: 0 auto;
+}
+
+/* RTL Support for Dashboard */
+.text-primary {
+    color: #009CFF !important;
+}
+
+.card-header {
+    padding: 1rem 1.25rem;
+}
+
+.card-header h5 {
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+.chart-container {
+    direction: ltr; /* حتى لا تنعكس الرسوم البيانية في واجهة RTL */
+}
+
+/* تحسينات تصميم البطاقات */
+.stats-card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.stats-card h6 {
+    font-weight: 600;
+    color: #666;
+}
+
+/* أحجام متوازنة للأيقونات */
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.stats-icon i {
+    font-size: 26px;
+}
+
+/* تحسينات الجداول */
+.table-responsive {
+    border-radius: 0 0 10px 10px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    color: #444;
+    background-color: #f8f9fa;
+    border-top: none;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Badges */
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    border-radius: 5px;
+}
+
+/* Container spacing */
+.container-fluid {
+    margin-top: .3%;
+    padding: 1.5rem;
+}
+
+/* Footer */
+.footer {
+    background-color: white;
+    padding: 1rem 0;
+    margin-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+/* من الألوان الإضافية */
+.bg-info-light {
+    background-color: rgba(23, 162, 184, 0.1);
+}
+
+.bg-secondary-light {
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+.text-arabic {
+    font-family: 'Cairo', sans-serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .stats-card h3 {
+        font-size: 1.4rem;
+    }
+    
+    .stats-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .stats-icon i {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 1rem;
+    }
+    
+    .stats-card {
+        padding: 1rem !important;
+    }
+    
+    .stats-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem;
+    }
+}
+
+/* Shadow effects */
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* RTL Support */
+body.rtl {
+    text-align: right;
+    direction: rtl;
+    transition: all 0.3s;
+    font-family: 'Cairo', sans-serif;
+}
+
+body.rtl .sidebar {
+    left: auto;
+    right: 0;
+    transition: all 0.3s;
+}
+
+body.rtl .content {
+    margin-left: 0;
+    margin-right: 250px;
+    width: calc(100% - 250px);
+    transition: all 0.3s;
+}
+
+body.rtl .content.open {
+    margin-right: 0;
+    width: 100%;
+}
+
+body.rtl .sidebar.open {
+    margin-right: -250px;
+    margin-left: 0;
+}
+
+body.rtl .sidebar.mini {
+    width: 70px;
+}
+
+body.rtl .content.mini {
+    margin-right: 70px;
+    margin-left: 0;
+    width: calc(100% - 70px);
+}
+
+@media (max-width: 992px) {
+    body.rtl .sidebar {
+        margin-right: -250px;
+        margin-left: 0;
+    }
+
+    body.rtl .sidebar.open {
+        margin-right: 0;
+    }
+
+    body.rtl .content {
+        margin-right: 0;
+        width: 100%;
+    }
+    
+    body.rtl .sidebar.mini {
+        margin-right: -70px;
+    }
+    
+    body.rtl .sidebar.mini.open {
+        margin-right: 0;
+    }
+}
+
+/* Bootstrap RTL Overrides */
+body.rtl .me-2 {
+    margin-right: 0 !important;
+    margin-left: 0.5rem !important;
+}
+
+body.rtl .ms-2 {
+    margin-left: 0 !important;
+    margin-right: 0.5rem !important;
+}
+
+body.rtl .me-3 {
+    margin-right: 0 !important;
+    margin-left: 1rem !important;
+}
+
+body.rtl .ms-3 {
+    margin-left: 0 !important;
+    margin-right: 1rem !important;
+}
+
+body.rtl .me-lg-2 {
+    margin-right: 0 !important;
+    margin-left: 0.5rem !important;
+}
+
+body.rtl .ms-auto {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+
+body.rtl .pe-3 {
+    padding-right: 0 !important;
+    padding-left: 1rem !important;
+}
+
+body.rtl .ps-3 {
+    padding-left: 0 !important;
+    padding-right: 1rem !important;
+}
+
+body.rtl .dropdown-menu-end {
+    left: 0 !important;
+    right: auto !important;
+}
+
+body.rtl .text-start {
+    text-align: right !important;
+}
+
+body.rtl .text-end {
+    text-align: left !important;
+}
+
+body.rtl .float-start {
+    float: right !important;
+}
+
+body.rtl .float-end {
+    float: left !important;
+}
+
+body.rtl .navbar .dropdown-toggle::after {
+    margin-left: 0;
+    margin-right: 0.255em;
+}
+
+body.rtl .navbar-nav {
+    padding-right: 0;
+}
+
+/* RTL for Header */
+body.rtl .navbar {
+    direction: rtl;
+}
+
+body.rtl .dropdown-item {
+    text-align: right;
+}
+
+body.rtl .card {
+    direction: rtl;
+}
+
+/* Language Switcher Styles */
+.language-switcher .lang-btn {
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #3ab935;
+    border: none;
+    color: #000;
+}
+
+.language-switcher .lang-btn:hover,
+.language-switcher .lang-btn:focus {
+    background-color: #e0a800;
+    color: #000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.language-switcher .dropdown-menu {
+    min-width: 120px;
+    border-radius: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-top: 10px;
+}
+
+.language-switcher .dropdown-item {
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.language-switcher .dropdown-item:hover,
+.language-switcher .dropdown-item.active {
+    background-color: rgba(0, 156, 255, 0.1);
+    color: var(--primary);
+}
+
+.language-switcher .dropdown-item:active {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* RTL language switcher adjustments */
+body.rtl .language-switcher .lang-btn {
+    right: auto !important;
+    left: 20px !important;
+}
+
+body.rtl .language-switcher .dropdown-menu {
+    right: auto !important;
+    left: 20px !important;
+}
+
+/* Header Bar Styling */
+.navbar {
+    padding: 0.5rem 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    width: 100%;
+}
+
+.navbar .nav-link {
+    padding: 0.6rem 1rem !important;
+    border-radius: 5px;
+    transition: all 0.2s;
+}
+
+.navbar .nav-link:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.navbar .dropdown-toggle::after {
+    vertical-align: middle;
+}
+
+/* Animation for sidebar RTL/LTR transition */
+.sidebar, .content {
+    transition-property: margin-left, margin-right, width;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-in-out;
+}
+
+/* Fade transition for language switch */
+.fade-transition {
+    transition: opacity 0.3s ease;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+.fade-in {
+    opacity: 1;
+}
+
+/* Transition for content text */
+.nav-text, .en-text, .ar-text {
+    transition: all 0.2s;
+}
+
+/* Card header white text */
+.card-header h5, 
+.card-header h5.text-white, 
+.card-header .text-white,
+.bg-primary h5 {
+    color: #fff !important;
+}
+
+/* RTL mode card header */
+body.rtl .card-header h5,
+body.rtl .card-header .text-white {
+    color: #fff !important;
+}
+
+/* تحديثات أزرار الإجراءات في الجداول */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+body.rtl .action-buttons {
+    flex-direction: row-reverse;
+}
+
+.action-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* مزيد من تحسينات RTL */
+body.rtl th, 
+body.rtl td {
+    text-align: right;
+}
+
+body.rtl .form-floating > label {
+    right: 0;
+    left: auto;
+    transform-origin: 100% 0;
+}
+
+body.rtl .invalid-feedback,
+body.rtl .text-danger {
+    text-align: right;
+}
+
+body.rtl .dropdown-menu-end {
+    left: 0 !important;
+    right: auto !important;
+}
+
+/* End of RTL Support */ 

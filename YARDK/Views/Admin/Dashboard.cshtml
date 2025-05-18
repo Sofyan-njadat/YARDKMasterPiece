@@ -1,62 +1,663 @@
 @{
-    ViewData["Title"] = "Dashboard";
-    Layout = "_Layout";
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_AdminLayout";
 }
 
-<div class="container-fluid bg-breadcrumb">
-    <div class="container text-center py-5" style="max-width: 900px;">
-        <h1 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Admin Dashboard</h1>
-        <ol class="breadcrumb justify-content-center text-white mb-0 wow fadeInDown" data-wow-delay="0.3s">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-white">Home</a></li>
-            <li class="breadcrumb-item active text-secondary">Admin Dashboard</li>
-        </ol>
+@using System.Text.Json
+@using System.Collections
+@using System.Collections.Generic
+
+<div class="container-fluid pt-4 px-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="bg-primary rounded p-4 shadow-sm" style="background-color: #003A66 !important;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="mb-0 text-white">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        <span class="en-text">Dashboard</span>
+                        <span class="ar-text d-none">لوحة التحكم</span>
+                    </h3>
+                    <span class="text-white">
+                        <span class="en-text">Last update: </span>
+                        <span class="ar-text d-none">آخر تحديث: </span>
+                        @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card h-100 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="mb-0">
+                        <span class="en-text">Users</span>
+                        <span class="ar-text d-none">المستخدمين</span>
+                    </h6>
+                    <div class="stats-icon bg-primary-light">
+                        <i class="fas fa-users text-primary"></i>
+                    </div>
+                </div>
+                <h3 class="mb-1">@ViewBag.TotalUsers</h3>
+                <div class="d-flex align-items-center">
+                    <small class="text-success me-2">
+                        <i class="fas fa-arrow-up me-1"></i>@ViewBag.NewUsers
+                    </small>
+                    <small>
+                        <span class="en-text">New this month</span>
+                        <span class="ar-text d-none">جديد هذا الشهر</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card h-100 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="mb-0">
+                        <span class="en-text">Products</span>
+                        <span class="ar-text d-none">المنتجات</span>
+                    </h6>
+                    <div class="stats-icon bg-success-light">
+                        <i class="fas fa-box text-success"></i>
+                    </div>
+                </div>
+                <h3 class="mb-1">@ViewBag.TotalProducts</h3>
+                <div class="d-flex align-items-center">
+                    <small class="text-success me-2">
+                        <i class="fas fa-arrow-up me-1"></i>@ViewBag.NewProducts
+                    </small>
+                    <small>
+                        <span class="en-text">New this week</span>
+                        <span class="ar-text d-none">جديد هذا الأسبوع</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card h-100 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="mb-0">
+                        <span class="en-text">Orders</span>
+                        <span class="ar-text d-none">الطلبات</span>
+                    </h6>
+                    <div class="stats-icon bg-warning-light">
+                        <i class="fas fa-shopping-cart text-warning"></i>
+                    </div>
+                </div>
+                <h3 class="mb-1">@ViewBag.TotalOrders</h3>
+                <div class="d-flex align-items-center">
+                    <small class="text-warning me-2">
+                        <i class="fas fa-spinner me-1"></i>@ViewBag.PendingOrders
+                    </small>
+                    <small>
+                        <span class="en-text">Pending</span>
+                        <span class="ar-text d-none">قيد الانتظار</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card h-100 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="mb-0">
+                        <span class="en-text">Revenue</span>
+                        <span class="ar-text d-none">الإيرادات</span>
+                    </h6>
+                    <div class="stats-icon bg-danger-light">
+                        <i class="fas fa-money-bill-wave text-danger"></i>
+                    </div>
+                </div>
+                <h3 class="mb-1">@ViewBag.TotalRevenue JD</h3>
+                <div class="d-flex align-items-center">
+                    <small class="text-success me-2">
+                        <i class="fas fa-arrow-up me-1"></i>@ViewBag.MonthlyRevenue JD
+                    </small>
+                    <small>
+                        <span class="en-text">This month</span>
+                        <span class="ar-text d-none">هذا الشهر</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-6 col-md-6">
+            <div class="stats-card h-100 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="mb-0">
+                        <span class="en-text">Categories</span>
+                        <span class="ar-text d-none">الفئات</span>
+                    </h6>
+                    <div class="stats-icon bg-info-light">
+                        <i class="fas fa-list text-info"></i>
+                    </div>
+                </div>
+                <h3 class="mb-1">@ViewBag.TotalCategories</h3>
+                <div class="d-flex align-items-center">
+                    <a asp-controller="Admin" asp-action="Categories" class="btn btn-sm btn-outline-info mt-2">
+                        <i class="fas fa-eye me-1"></i>
+                        <span class="en-text">View Categories</span>
+                        <span class="ar-text d-none">عرض الفئات</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-md-6">
+            <div class="stats-card h-100 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="mb-0">
+                        <span class="en-text">Feedbacks</span>
+                        <span class="ar-text d-none">التعليقات</span>
+                    </h6>
+                    <div class="stats-icon bg-secondary-light">
+                        <i class="fas fa-comments text-secondary"></i>
+                    </div>
+                </div>
+                <h3 class="mb-1">@ViewBag.TotalFeedbacks</h3>
+                <div class="d-flex align-items-center">
+                    <small class="text-success me-2">
+                        <i class="fas fa-arrow-up me-1"></i>@ViewBag.NewFeedbacks
+                    </small>
+                    <small>
+                        <span class="en-text">New this week</span>
+                        <span class="ar-text d-none">جديد هذا الأسبوع</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts & Quick Actions -->
+    <div class="row g-4 mb-4">
+        <!-- Weekly Orders Chart -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-chart-line me-2"></i>
+                        <span class="en-text">Weekly Orders Analysis</span>
+                        <span class="ar-text d-none">تحليل الطلبات الأسبوعية</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.WeeklyOrdersData != null && ((IEnumerable<dynamic>)ViewBag.WeeklyOrdersData).Any())
+                    {
+                        <div class="chart-container" style="position: relative; height:350px;">
+                            <canvas id="weeklyOrdersChart"></canvas>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-bar fa-4x text-muted mb-3"></i>
+                            <h5>
+                                <span class="en-text">No Weekly Orders Data</span>
+                                <span class="ar-text d-none">لا توجد بيانات للطلبات الأسبوعية</span>
+                            </h5>
+                            <p class="text-muted">
+                                <span class="en-text">Data will appear once orders are placed during the past week.</span>
+                                <span class="ar-text d-none">ستظهر البيانات بمجرد وجود طلبات خلال الأسبوع الماضي.</span>
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-tasks me-2"></i>
+                        <span class="en-text">Quick Actions</span>
+                        <span class="ar-text d-none">الإجراءات السريعة</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <a asp-controller="Admin" asp-action="Categories" class="btn btn-primary py-3">
+                            <i class="fas fa-list me-2"></i>
+                            <span class="en-text">Manage Categories</span>
+                            <span class="ar-text d-none">إدارة الفئات</span>
+                        </a>
+                        <a asp-controller="Admin" asp-action="Admins" class="btn btn-dark py-3">
+                            <i class="fas fa-user-shield me-2"></i>
+                            <span class="en-text">Manage Admins</span>
+                            <span class="ar-text d-none">إدارة المسؤولين</span>
+                        </a>
+                        <a asp-controller="Admin" asp-action="Users" class="btn btn-info py-3">
+                            <i class="fas fa-users me-2"></i>
+                            <span class="en-text">Manage Users</span>
+                            <span class="ar-text d-none">إدارة المستخدمين</span>
+                        </a>
+                        <a asp-controller="Admin" asp-action="BlockedUsers" class="btn btn-danger py-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span class="en-text">Blocked Users</span>
+                            <span class="ar-text d-none">المستخدمين المحظورين</span>
+                        </a>
+                        <a href="#" class="btn btn-success py-3">
+                            <i class="fas fa-box me-2"></i>
+                            <span class="en-text">Manage Products</span>
+                            <span class="ar-text d-none">إدارة المنتجات</span>
+                        </a>
+                        <a href="#" class="btn btn-warning py-3">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            <span class="en-text">View Orders</span>
+                            <span class="ar-text d-none">عرض الطلبات</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Overview & Recent Activity -->
+    <div class="row g-4 mb-4">
+        <!-- Monthly Sales -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-chart-line me-2"></i>
+                        <span class="en-text">Sales Overview</span>
+                        <span class="ar-text d-none">نظرة عامة على المبيعات</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.MonthlySales != null && ((IEnumerable<dynamic>)ViewBag.MonthlySales).Any())
+                    {
+                        <div class="chart-container" style="position: relative; height:350px;">
+                            <canvas id="monthlySalesChart"></canvas>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-bar fa-4x text-muted mb-3"></i>
+                            <h5>
+                                <span class="en-text">No Sales Data</span>
+                                <span class="ar-text d-none">لا توجد بيانات للمبيعات</span>
+                            </h5>
+                            <p class="text-muted">
+                                <span class="en-text">Sales statistics will appear once orders are placed.</span>
+                                <span class="ar-text d-none">ستظهر إحصائيات المبيعات بمجرد وجود طلبات.</span>
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-history me-2"></i>
+                        <span class="en-text">Recent Activities</span>
+                        <span class="ar-text d-none">آخر النشاطات</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>
+                                        <span class="en-text">Activity</span>
+                                        <span class="ar-text d-none">النشاط</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">User</span>
+                                        <span class="ar-text d-none">المستخدم</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Date</span>
+                                        <span class="ar-text d-none">التاريخ</span>
+                                    </th>
+                                    <th>
+                                        <span class="en-text">Status</span>
+                                        <span class="ar-text d-none">الحالة</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.RecentOrders != null && ((IEnumerable<dynamic>)ViewBag.RecentOrders).Any())
+                                {
+                                    foreach (var order in ViewBag.RecentOrders)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="en-text">New Order #@order.OrderId</span>
+                                                <span class="ar-text d-none">طلب جديد #@order.OrderId</span>
+                                            </td>
+                                            <td>@order.UserName</td>
+                                            <td>@(order.CreatedAt != null ? ((DateTime)order.CreatedAt).ToString("dd MMM HH:mm") : "-")</td>
+                                            <td>
+                                                <span class="badge bg-@(order.Status == "Completed" ? "success" : (order.Status == "Pending" ? "warning" : "primary"))">
+                                                    @if (order.Status == "Completed")
+                                                    {
+                                                        <span class="en-text">Completed</span>
+                                                        <span class="ar-text d-none">مكتمل</span>
+                                                    }
+                                                    else if (order.Status == "Pending")
+                                                    {
+                                                        <span class="en-text">Pending</span>
+                                                        <span class="ar-text d-none">قيد الانتظار</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="en-text">Processing</span>
+                                                        <span class="ar-text d-none">قيد المعالجة</span>
+                                                    }
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                
+                                @if (ViewBag.RecentUsers != null && ((IEnumerable<dynamic>)ViewBag.RecentUsers).Any())
+                                {
+                                    foreach (var user in ViewBag.RecentUsers)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="en-text">New User Registration</span>
+                                                <span class="ar-text d-none">تسجيل مستخدم جديد</span>
+                                            </td>
+                                            <td>@user.Name</td>
+                                            <td>@(user.CreatedAt != null ? ((DateTime)user.CreatedAt).ToString("dd MMM HH:mm") : "-")</td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    <span class="en-text">New</span>
+                                                    <span class="ar-text d-none">جديد</span>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                
+                                @if ((ViewBag.RecentOrders == null || !((IEnumerable<dynamic>)ViewBag.RecentOrders).Any()) && 
+                                    (ViewBag.RecentUsers == null || !((IEnumerable<dynamic>)ViewBag.RecentUsers).Any()))
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">
+                                            <span class="en-text">No recent activities</span>
+                                            <span class="ar-text d-none">لا توجد نشاطات حديثة</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="container-fluid py-5">
-    <div class="container py-5">
-        <div class="row g-4">
-            <div class="col-12">
-                <div class="section-title text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="sub-style">
-                        <h5 class="sub-title text-primary px-3">Admin Panel</h5>
-                    </div>
-                    <h1 class="display-5 mb-4">Website Management</h1>
-                    <p class="mb-0">Manage your website content, categories, products, and users.</p>
-                </div>
-            </div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            // تأخير في تهيئة المخططات البيانية لضمان تحميل الصفحة بشكل كامل
+            setTimeout(function() {
+                initializeCharts();
+            }, 300);
             
-            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="service-item">
-                    <div class="service-inner">
-                        <div class="service-img">
-                            <img src="~/img/admin-categories.jpg" class="img-fluid w-100 rounded" alt="Categories">
-                        </div>
-                        <div class="service-title">
-                            <div class="service-title-name">
-                                <div class="bg-primary text-center rounded p-3 mx-5 mb-4">
-                                    <span class="h4 text-white mb-0">Categories</span>
-                                </div>
-                                <a class="btn bg-light text-secondary rounded-pill py-3 px-5 mb-4"
-                                   asp-controller="Admin" asp-action="Categories">Manage</a>
-                            </div>
-                            <div class="service-content pb-4">
-                                <a asp-controller="Admin" asp-action="Categories">
-                                    <h4 class="text-white mb-4 py-3">Categories</h4>
-                                </a>
-                                <div class="px-4">
-                                    <p class="mb-4">Manage categories for products including names, descriptions, and images.</p>
-                                    <a class="btn btn-primary border-secondary rounded-pill text-white py-3 px-5"
-                                       asp-controller="Admin" asp-action="Categories">Manage Categories</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            function initializeCharts() {
+                // تهيئة رسم بياني للمبيعات الشهرية
+                const monthlySalesCanvas = document.getElementById('monthlySalesChart');
+                
+                if (monthlySalesCanvas) {
+                    const salesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.MonthlySales ?? new List<object>()));
+                    
+                    if (salesData && Array.isArray(salesData) && salesData.length > 0) {
+                        const months = salesData.map(item => item.Month + ' ' + item.Year);
+                        const sales = salesData.map(item => item.Sales);
+                        
+                        window.monthlySalesChart = new Chart(monthlySalesCanvas, {
+                            type: 'bar',
+                            data: {
+                                labels: months,
+                                datasets: [{
+                                    label: '',
+                                    data: sales,
+                                    backgroundColor: 'rgba(0, 156, 255, 0.7)',
+                                    borderColor: 'rgba(0, 156, 255, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: {
+                                            drawBorder: false
+                                        },
+                                        ticks: {
+                                            font: {
+                                                size: 11
+                                            }
+                                        }
+                                    },
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        },
+                                        ticks: {
+                                            font: {
+                                                size: 11
+                                            }
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top',
+                                        labels: {
+                                            font: {
+                                                size: 12
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                // تهيئة رسم بياني للطلبات الأسبوعية
+                const weeklyOrdersCanvas = document.getElementById('weeklyOrdersChart');
+                
+                if (weeklyOrdersCanvas) {
+                    const ordersData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.WeeklyOrdersData ?? new List<object>()));
+                    
+                    if (ordersData && Array.isArray(ordersData) && ordersData.length > 0) {
+                        const days = ordersData.map(item => item.Day + ' ' + item.Date);
+                        const counts = ordersData.map(item => item.Count);
+                        
+                        // حساب نسبة التغيير اليومية للطلبات
+                        const dailyChanges = [];
+                        for (let i = 1; i < counts.length; i++) {
+                            if (counts[i-1] === 0) {
+                                // إذا كان اليوم السابق صفراً، نعتبر النسبة 100% إذا كان هناك طلبات جديدة
+                                dailyChanges.push(counts[i] > 0 ? 100 : 0);
+                            } else {
+                                const change = ((counts[i] - counts[i-1]) / counts[i-1]) * 100;
+                                dailyChanges.push(Math.round(change));
+                            }
+                        }
+                        
+                        window.weeklyOrdersChart = new Chart(weeklyOrdersCanvas, {
+                            type: 'line',
+                            data: {
+                                labels: days,
+                                datasets: [
+                                    {
+                                        label: '',
+                                        data: counts,
+                                        backgroundColor: 'rgba(0, 156, 255, 0.2)',
+                                        borderColor: 'rgba(0, 156, 255, 1)',
+                                        borderWidth: 2,
+                                        fill: true,
+                                        tension: 0.2
+                                    },
+                                    {
+                                        label: '',
+                                        data: [0, ...dailyChanges], // إضافة صفر للقيمة الأولى
+                                        backgroundColor: 'rgba(255, 193, 7, 0.0)',
+                                        borderColor: 'rgba(255, 193, 7, 1)',
+                                        borderWidth: 2,
+                                        borderDash: [5, 5],
+                                        fill: false,
+                                        tension: 0.1,
+                                        yAxisID: 'percentage'
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                interaction: {
+                                    mode: 'index',
+                                    intersect: false,
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: {
+                                            drawBorder: false
+                                        },
+                                        ticks: {
+                                            font: {
+                                                size: 11
+                                            },
+                                            precision: 0
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: ''  // Will be updated based on language
+                                        }
+                                    },
+                                    percentage: {
+                                        position: 'right',
+                                        grid: {
+                                            drawBorder: false,
+                                            display: false
+                                        },
+                                        ticks: {
+                                            font: {
+                                                size: 11
+                                            },
+                                            callback: function(value) {
+                                                return value + '%';
+                                            }
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: ''  // Will be updated based on language
+                                        }
+                                    },
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        },
+                                        ticks: {
+                                            font: {
+                                                size: 11
+                                            }
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top',
+                                        labels: {
+                                            font: {
+                                                size: 12
+                                            }
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                let label = context.dataset.label || '';
+                                                if (label) {
+                                                    label += ': ';
+                                                }
+                                                if (context.dataset.yAxisID === 'percentage') {
+                                                    return label + context.parsed.y + '%';
+                                                }
+                                                return label + context.parsed.y;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                // تحديث عناوين المخططات البيانية بعد التهيئة
+                updateChartLabels();
+            }
             
-            <!-- Additional admin sections can be added here -->
+            // Function to update chart labels based on language
+            function updateChartLabels() {
+                if (window.currentLang === 'ar') {
+                    // Arabic labels
+                    if (window.monthlySalesChart) {
+                        window.monthlySalesChart.data.datasets[0].label = 'المبيعات الشهرية (JD)';
+                        window.monthlySalesChart.update();
+                    }
+                    
+                    if (window.weeklyOrdersChart) {
+                        window.weeklyOrdersChart.data.datasets[0].label = 'عدد الطلبات';
+                        window.weeklyOrdersChart.data.datasets[1].label = 'نسبة التغيير (%)';
+                        window.weeklyOrdersChart.options.scales.y.title.text = 'عدد الطلبات';
+                        window.weeklyOrdersChart.options.scales.percentage.title.text = 'نسبة التغيير';
+                        window.weeklyOrdersChart.update();
+                    }
+                } else {
+                    // English labels
+                    if (window.monthlySalesChart) {
+                        window.monthlySalesChart.data.datasets[0].label = 'Monthly Sales (JD)';
+                        window.monthlySalesChart.update();
+                    }
+                    
+                    if (window.weeklyOrdersChart) {
+                        window.weeklyOrdersChart.data.datasets[0].label = 'Orders Count';
+                        window.weeklyOrdersChart.data.datasets[1].label = 'Change Rate (%)';
+                        window.weeklyOrdersChart.options.scales.y.title.text = 'Orders Count';
+                        window.weeklyOrdersChart.options.scales.percentage.title.text = 'Change Rate';
+                        window.weeklyOrdersChart.update();
+                    }
+                }
+            }
             
-        </div>
-    </div>
-</div> 
+            // Listen for language change event
+            $(document).on('languageChanged', function(e, lang) {
+                // التأكد من وجود المخططات قبل محاولة تحديثها
+                if (window.monthlySalesChart || window.weeklyOrdersChart) {
+                    updateChartLabels();
+                } else {
+                    // إعادة تهيئة المخططات إذا لم تكن موجودة
+                    setTimeout(function() {
+                        initializeCharts();
+                    }, 300);
+                }
+            });
+        });
+    </script>
+} 

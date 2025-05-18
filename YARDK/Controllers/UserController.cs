@@ -189,63 +189,60 @@ namespace YARDK.Controllers
         // POST: UserController/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public IActionResult Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Find user by email and password
-                    var user = await _context.Users.FirstOrDefaultAsync(
-                        u => u.Email == model.Email && u.Password == model.Password);
+                    // استخراج بيانات المستخدم من النموذج
+                    string email = model.Email?.Trim();
+                    string password = model.Password?.Trim();
+
+                    // البحث عن المستخدم بواسطة البريد الإلكتروني
+                    var user = _context.Users.FirstOrDefault(u => u.Email == email);
 
                     if (user == null)
                     {
-                        ModelState.AddModelError("", "Invalid email or password");
+                        ModelState.AddModelError("Email", "البريد الإلكتروني غير مسجل");
                         return View(model);
                     }
 
-                    if (user.IsActive != true)
+                    // التحقق من كلمة المرور
+                    if (user.Password != password)
                     {
-                        ModelState.AddModelError("", "This account is inactive");
+                        ModelState.AddModelError("Password", "كلمة المرور غير صحيحة");
                         return View(model);
                     }
 
-                    // Get cart items from session before login
-                    List<CartItemViewModel> sessionCart = GetCartFromSession();
-
-                    // الحصول على قيمة Role، وإذا كانت فارغة استخدم "User" كقيمة افتراضية
-                    string userRole = user.Role ?? "User";
-
-                    // Store user information in cookies instead of session
-                    var cookieOptions = new CookieOptions
-                    {
-                        HttpOnly = true,
-                        IsEssential = true,
-                        SameSite = SameSiteMode.Lax
-                    };
+                    // تم التحقق بنجاح، قم بتخزين معلومات المستخدم في الكوكيز
+                    Response.Cookies.Append("UserId", user.Id.ToString(), new CookieOptions { Expires = DateTime.Now.AddDays(30) });
+                    Response.Cookies.Append("UserName", user.Name ?? "User", new CookieOptions { Expires = DateTime.Now.AddDays(30) });
+                    Response.Cookies.Append("UserEmail", user.Email ?? "", new CookieOptions { Expires = DateTime.Now.AddDays(30) });
+                    Response.Cookies.Append("UserRole", user.Role ?? "User", new CookieOptions { Expires = DateTime.Now.AddDays(30) });
+                    Response.Cookies.Append("AccountType", "Personal Account", new CookieOptions { Expires = DateTime.Now.AddDays(30) });
                     
-                    // Set cookie expiration based on RememberMe option
-                    if (model.RememberMe)
+                    // التحقق من وجود تاريخ الإنشاء
+                    string joinDate = DateTime.Now.ToString("d");
+                    if (user.CreatedAt.HasValue)
                     {
-                        cookieOptions.Expires = DateTime.Now.AddDays(30);
+                        joinDate = user.CreatedAt.Value.ToString("d");
                     }
-                    
-                    Response.Cookies.Append("UserId", user.Id.ToString(), cookieOptions);
-                    Response.Cookies.Append("UserName", user.Name, cookieOptions);
-                    Response.Cookies.Append("UserRole", userRole, cookieOptions);
+                    Response.Cookies.Append("JoinDate", joinDate, new CookieOptions { Expires = DateTime.Now.AddDays(30) });
 
-                    // If there are items in the session cart, merge them with the user's database cart
-                    if (sessionCart != null && sessionCart.Any())
+                    // إذا كان المستخدم مسؤولاً، قم بتوجيهه إلى لوحة التحكم
+                    if (user.Role == "Admin")
                     {
-                        MergeSessionCartToDatabase(user.Id, sessionCart);
+                        return RedirectToAction("Dashboard", "Admin");
                     }
 
+                    // توجيه المستخدم العادي إلى الصفحة الرئيسية
                     return RedirectToAction("Index", "Home");
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", $"Login failed: {ex.Message}");
+                    ModelState.AddModelError("", $"Email or Password is invalid !: {ex.Message}");
+                    return View(model);
                 }
             }
 
@@ -627,11 +624,83 @@ namespace YARDK.Controllers
                 }
 
                 return View(order);
-        }
+            }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error loading order details: {ex.Message}";
                 return RedirectToAction("MyOrders");
+            }
+        }
+        
+        // API endpoint to get order details for AJAX calls
+        public async Task<JsonResult> GetOrderDetails(int id)
+        {
+            try
+            {
+                // التحقق من وجود المستخدم المسجل
+                if (Request.Cookies["UserId"] == null && !IsAdmin())
+                {
+                    return Json(new { success = false, message = "Unauthorized" });
+                }
+
+                // Get the order with related items and products
+                var order = await _context.Orders
+                    .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "Order not found" });
+                }
+
+                // التحقق من أن المستخدم مسؤول أو مالك الطلب
+                bool isAdmin = IsAdmin();
+                bool isOrderOwner = false;
+                
+                if (Request.Cookies["UserId"] != null)
+                {
+                    int userId = int.Parse(Request.Cookies["UserId"]);
+                    isOrderOwner = order.UserId == userId;
+                }
+
+                if (!isAdmin && !isOrderOwner)
+                {
+                    return Json(new { success = false, message = "Unauthorized" });
+                }
+
+                // Map to simplified object to avoid circular references in JSON
+                var result = new
+                {
+                    id = order.Id,
+                    orderNumber = order.OrderNumber,
+                    totalAmount = order.TotalAmount,
+                    status = order.Status,
+                    shippingAddress = order.ShippingAddress,
+                    billingAddress = order.BillingAddress,
+                    paymentMethod = order.PaymentMethod,
+                    paymentStatus = order.PaymentStatus,
+                    createdAt = order.CreatedAt,
+                    orderItems = order.OrderItems.Select(item => new
+                    {
+                        id = item.Id,
+                        quantity = item.Quantity,
+                        unitPrice = item.UnitPrice,
+                        totalPrice = item.TotalPrice,
+                        product = item.Product == null ? null : new
+                        {
+                            id = item.Product.Id,
+                            productName = item.Product.ProductName,
+                            imageUrl = item.Product.ImageUrl
+                        }
+                    }).ToList()
+                };
+
+                return Json(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error: {ex.Message}" });
             }
         }
 

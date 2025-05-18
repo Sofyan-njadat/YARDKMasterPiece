@@ -211,6 +211,114 @@ namespace YARDK.Controllers
             }
         }
 
+        public async Task<ActionResult> AllProducts(string sortBy = "newest", string category = "all", bool isActive = true)
+        {
+            try
+            {
+                int pageSize = 10; // عدد المنتجات في كل صفحة
+
+                // Store current values in ViewBag
+                ViewBag.IsActive = isActive;
+                ViewBag.CurrentSort = sortBy;
+                ViewBag.CurrentCategory = category;
+
+                var products = _context.Products
+                    .Include(p => p.Seller)
+                    .Include(p => p.ProductImages)
+                    .Where(p => (isActive && p.Status == "Active" && p.Quantity > 0) || (!isActive && (p.Status != "Active" || p.Quantity == 0)));
+
+                // الحصول على جميع الفئات الفريدة من قاعدة البيانات
+                var uniqueCategories = await _context.Products
+                    .Select(p => p.Category)
+                    .Distinct()
+                    .ToListAsync();
+
+                Console.WriteLine("Available categories in database:");
+                foreach (var cat in uniqueCategories)
+                {
+                    Console.WriteLine($"Category: '{cat}'");
+                }
+
+                if (category != "all")
+                {
+                    string categoryName = category switch
+                    {
+                        "Furniture" => "Furniture",
+                        "Electrical_Appliances" => "Electrical Appliances", // تم تغيير & إلى مسافة
+                        "Scrap_Surplus" => "Scrap & Surplus",
+                        _ => category
+                    };
+                    Console.WriteLine($"Selected category: '{categoryName}'");
+                    products = products.Where(p => p.Category == categoryName);
+                }
+
+                // تسجيل عدد المنتجات بعد التصفية
+                var filteredCount = await products.CountAsync();
+                Console.WriteLine($"Number of products after filtering: {filteredCount}");
+
+                switch (sortBy)
+                {
+                    case "price_asc":
+                        products = products.OrderBy(p => p.Price);
+                        break;
+                    case "price_desc":
+                        products = products.OrderByDescending(p => p.Price);
+                        break;
+                    case "name_asc":
+                        products = products.OrderBy(p => p.ProductName);
+                        break;
+                    case "name_desc":
+                        products = products.OrderByDescending(p => p.ProductName);
+                        break;
+                    case "oldest":
+                        products = products.OrderBy(p => p.CreatedAt);
+                        break;
+                    case "newest":
+                    default:
+                        products = products.OrderByDescending(p => p.CreatedAt);
+                        break;
+                }
+
+                var totalItems = await products.CountAsync();
+                var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+                var productsList = await products
+                    .Select(p => new ProductViewModel
+                    {
+                        Id = p.Id,
+                        ProductName = p.ProductName ?? "No Name",
+                        Description = p.Description ?? "No Description",
+                        Category = p.Category ?? "Uncategorized",
+                        Quantity = p.Quantity ?? 0,
+                        Price = p.Price ?? 0,
+                        ImageUrl = p.ProductImages.Any() && p.ProductImages.FirstOrDefault(img => img.IsMainImage) != null 
+                            ? p.ProductImages.FirstOrDefault(img => img.IsMainImage).ImageUrl 
+                            : (p.ProductImages.Any() ? p.ProductImages.First().ImageUrl : (p.ImageUrl != null ? p.ImageUrl : "/img/no-image.jpg")),
+                        SellerName = p.Seller != null ? p.Seller.Name : "Unknown Seller",
+                        Status = p.Status
+                    })
+                    .ToListAsync();
+
+                var categories = await _context.Products
+                    .Select(p => p.Category)
+                    .Distinct()
+                    .Where(c => c != null)
+                    .ToListAsync();
+
+                ViewBag.SortBy = sortBy;
+                ViewBag.Category = category;
+                ViewBag.Categories = categories;
+                ViewBag.TotalItems = totalItems;
+
+                return View(productsList);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = $"An error occurred while fetching products: {ex.Message}";
+                return View(new List<ProductViewModel>());
+            }
+        }
+
         public ActionResult ProductDetails(int id)
         {
             var product = _context.Products
@@ -1194,29 +1302,50 @@ namespace YARDK.Controllers
 
         // POST: ProductController/DeleteProduct/5
         [HttpPost]
-        public IActionResult DeleteProduct(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             try
             {
-                // التحقق من أن المستخدم قد سجل الدخول
-                if (Request.Cookies["UserId"] == null)
+                var product = await _context.Products
+                    .Include(p => p.ProductImages)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (product == null)
                 {
-                    return RedirectToAction("Login", "User");
+                    return Json(new { 
+                        success = false, 
+                        message = "Product not found.",
+                        messageAr = "المنتج غير موجود"
+                    });
                 }
 
-                int userId = int.Parse(Request.Cookies["UserId"]);
+                // تحديث حالة المنتج بدلاً من حذفه
+                product.Quantity = 0;
+                product.Status = "Inactive";
+                
+                _context.Products.Update(product);
+                await _context.SaveChangesAsync();
 
-                // تنفيذ استعلام SQL مباشر لوضع قيمة 0 في حقل Quantity
-                string sql = "UPDATE Products SET Quantity = 0 WHERE ID = @p0 AND SellerID = @p1";
-                _context.Database.ExecuteSqlRaw(sql, id, userId);
-
-                TempData["SuccessMessage"] = "Product has been deleted successfully.";
-                return RedirectToAction("MyAds", "User");
+                return Json(new { 
+                    success = true, 
+                    message = "Product has been deleted successfully.",
+                    messageAr = "تم حذف المنتج بنجاح"
+                });
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
-                return RedirectToAction("MyAds", "User");
+                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner error: {ex.InnerException.Message}");
+                }
+
+                return Json(new { 
+                    success = false, 
+                    message = "An error occurred while processing your request.",
+                    messageAr = "حدث خطأ أثناء معالجة طلبك"
+                });
             }
         }
 
@@ -1248,6 +1377,30 @@ namespace YARDK.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error serializing cart: {ex.Message}");
+            }
+        }
+
+        public ActionResult AdminProductDetails(int id)
+        {
+            try
+            {
+                var product = _context.Products
+                    .Include(p => p.Seller)
+                    .Include(p => p.ProductImages)
+                    .FirstOrDefault(p => p.Id == id);
+
+                if (product == null)
+                {
+                    TempData["ErrorMessage"] = "Product not found.";
+                    return RedirectToAction("AllProducts");
+                }
+
+                return View(product);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+                return RedirectToAction("AllProducts");
             }
         }
     }
