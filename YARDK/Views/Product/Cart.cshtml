@@ -147,6 +147,7 @@
     <!-- Cart Section End -->
 
 @section Scripts {
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
 		function updateQuantity(productId, change) {
 			const quantityInput = document.getElementById(`qty-${productId}`);
@@ -192,11 +193,20 @@
 		}
 		
 		function clearCart() {
-			if (confirm('Are you sure you want to clear your cart?')) {
-				// Implementation needed in the controller
-				// For now, we can redirect to remove all items one by one
-				window.location.href = '/Product/ClearCart';
-			}
+			Swal.fire({
+				title: 'Are you sure?',
+				text: 'Do you want to clear your cart?',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#3085d6',
+				confirmButtonText: 'Yes, clear it!',
+				cancelButtonText: 'Cancel'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					window.location.href = '/Product/ClearCart';
+				}
+			});
 		}
 		
 		function showLoader() {

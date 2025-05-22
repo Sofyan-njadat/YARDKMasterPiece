@@ -1290,12 +1290,22 @@ namespace YARDK.Controllers
         // GET: ProductController/ClearCart
         public IActionResult ClearCart()
         {
-            // إزالة السلة من الجلسة
+            bool isLoggedIn = Request.Cookies["UserId"] != null;
+            if (isLoggedIn)
+            {
+                int userId = int.Parse(Request.Cookies["UserId"]);
+                // حذف جميع عناصر السلة من قاعدة البيانات
+                var cart = _context.Carts.Include(c => c.CartItems).FirstOrDefault(c => c.UserId == userId);
+                if (cart != null && cart.CartItems.Any())
+                {
+                    _context.CartItems.RemoveRange(cart.CartItems);
+                    _context.SaveChanges();
+                }
+            }
+            // إزالة السلة من الجلسة دائماً (احتياطاً)
             HttpContext.Session.Remove("Cart");
-            
             // إضافة رسالة تأكيد
             TempData["SuccessMessage"] = "Your cart has been cleared successfully.";
-            
             // العودة إلى صفحة السلة
             return RedirectToAction("Cart");
         }

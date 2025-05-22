@@ -44,36 +44,30 @@
         {
             <div class="row mb-4">
                 <div class="col-12">
-                    <div class="bg-light rounded p-4 shadow-sm">
+                    <div class="filter-box rounded p-4">
                         <div class="d-flex justify-content-between align-items-center flex-wrap">
                             <div class="section-title mb-0">
-                                <h5 class="sub-title text-primary">
+                                <h5 class="category-title">
                                     <span class="en-text">Scrap & Surplus</span>
                                     <span class="ar-text d-none">الخردة والفائض</span>
                                 </h5>
+                                <p class="items-count mb-0">
+                                    <span class="en-text">Found @Model?.Count() items</span>
+                                    <span class="ar-text d-none">تم العثور على @Model?.Count() منتج</span>
+                                </p>
                             </div>
                             <div class="d-flex gap-2 mt-2 mt-md-0">
-                                <select id="sortOrder" class="form-select form-select-sm" style="width: auto;">
-                                    <option value="default">
-                                        <span class="en-text">Default Sorting</span>
-                                        <span class="ar-text d-none">الترتيب الافتراضي</span>
-                                    </option>
-                                    <option value="priceAsc">
-                                        <span class="en-text">Price: Low to High</span>
-                                        <span class="ar-text d-none">السعر: من الأقل إلى الأعلى</span>
-                                    </option>
-                                    <option value="priceDesc">
-                                        <span class="en-text">Price: High to Low</span>
-                                        <span class="ar-text d-none">السعر: من الأعلى إلى الأقل</span>
-                                    </option>
-                                    <option value="nameAsc">
-                                        <span class="en-text">Name: A to Z</span>
-                                        <span class="ar-text d-none">الاسم: من أ إلى ي</span>
-                                    </option>
-                                    <option value="nameDesc">
-                                        <span class="en-text">Name: Z to A</span>
-                                        <span class="ar-text d-none">الاسم: من ي إلى أ</span>
-                                    </option>
+                                <select id="sortOrder" class="custom-select form-select form-select-sm" style="width: auto;">
+                                    <option value="default" class="en-text">Default Sorting</option>
+                                    <option value="default" class="ar-text d-none">الترتيب الافتراضي</option>
+                                    <option value="priceAsc" class="en-text">Price: Low to High</option>
+                                    <option value="priceAsc" class="ar-text d-none">السعر: من الأقل إلى الأعلى</option>
+                                    <option value="priceDesc" class="en-text">Price: High to Low</option>
+                                    <option value="priceDesc" class="ar-text d-none">السعر: من الأعلى إلى الأقل</option>
+                                    <option value="nameAsc" class="en-text">Name: A to Z</option>
+                                    <option value="nameAsc" class="ar-text d-none">الاسم: من أ إلى ي</option>
+                                    <option value="nameDesc" class="en-text">Name: Z to A</option>
+                                    <option value="nameDesc" class="ar-text d-none">الاسم: من ي إلى أ</option>
                                 </select>
                             </div>
                         </div>
@@ -91,10 +85,18 @@
                          data-wow-delay="0.1s" 
                          data-price="@product.Price" 
                          data-name="@product.ProductName">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <div class="position-relative">
-                                <img src="@product.ImageUrl" class="card-img-top" 
-                                     alt="@product.ProductName" style="height: 250px; object-fit: cover;">
+                        <div class="card h-100 border-0 shadow-hover">
+                            <div class="position-relative overflow-hidden">
+                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl" class="card-img-top" alt="@product.ProductName" 
+                                         style="height: 250px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <img src="~/img/no-image.jpg" class="card-img-top" alt="No Image" 
+                                         style="height: 250px; object-fit: cover;">
+                                }
                             </div>
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between mb-3">
@@ -117,7 +119,10 @@
                                             <span class="ar-text d-none">أضف</span>
                                         </button>
                                     </div>
-                                    <span class="badge bg-primary rounded-pill">@product.Quantity in stock</span>
+                                    <span class="badge bg-primary rounded-pill">
+                                        <span class="en-text">@product.Quantity in stock</span>
+                                        <span class="ar-text d-none">@product.Quantity متوفر</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -233,6 +238,23 @@
             });
         }
 
+        // تحديث الفلتر حسب اللغة المحددة
+        function updateFilterOptions() {
+            const isArabic = localStorage.getItem('language') === 'ar';
+            const select = document.getElementById('sortOrder');
+            const enOptions = select.querySelectorAll('.en-text');
+            const arOptions = select.querySelectorAll('.ar-text');
+            
+            enOptions.forEach(opt => opt.classList.toggle('d-none', isArabic));
+            arOptions.forEach(opt => opt.classList.toggle('d-none', !isArabic));
+        }
+
+        // تحديث الفلتر عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', updateFilterOptions);
+        
+        // تحديث الفلتر عند تغيير اللغة
+        document.addEventListener('languageChanged', updateFilterOptions);
+
         // Sorting functionality
         document.getElementById('sortOrder').addEventListener('change', function() {
             const container = document.getElementById('productsContainer');
@@ -281,8 +303,36 @@
             transform: translateY(-5px);
         }
 
-        .product-overlay {
+        .product-action {
             display: none;
+        }
+
+        .btn-square {
+            width: 45px;
+            height: 45px;
+            padding: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: normal;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            background-color: white;
+            margin: 0 5px;
+        }
+
+        .btn-square i {
+            font-size: 1.2rem;
+        }
+
+        .btn-square:hover {
+            transform: translateY(-2px);
+            background-color: var(--bs-primary) !important;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-square:hover i {
+            color: white !important;
         }
 
         .description-text {
@@ -292,33 +342,132 @@
             overflow: hidden;
             text-overflow: ellipsis;
             min-height: 4.5em;
+            font-size: 0.9rem;
+        }
+
+        .rating {
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 1em;
         }
 
         .page-link {
+            border-radius: 30px;
+            margin: 0 3px;
+            border: none;
             color: #32A12E;
             background-color: #fff;
-            border-color: #dee2e6;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
 
         .page-link:hover {
-            color: #218838;
-            background-color: #e9ecef;
-            border-color: #dee2e6;
+            color: #fff;
+            background-color: #32A12E;
         }
 
         .page-item.active .page-link {
             background-color: #32A12E;
             border-color: #32A12E;
-            color: #fff;
         }
 
         .form-select {
-            border-color: #dee2e6;
+            border-radius: 30px;
+            border: 1px solid #eee;
+            padding: 0.375rem 2.25rem 0.375rem 1rem;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
 
         .form-select:focus {
             border-color: #32A12E;
             box-shadow: 0 0 0 0.25rem rgba(50, 161, 46, 0.25);
+        }
+
+        [dir="rtl"] .form-select {
+            padding: 0.375rem 1rem 0.375rem 2.25rem;
+            background-position: left 0.75rem center;
+        }
+
+        [dir="rtl"] .card-body {
+            text-align: right;
+        }
+
+        [dir="rtl"] .rating {
+            direction: ltr;
+            display: inline-block;
+        }
+
+        @@media (max-width: 768px) {
+            .product-action {
+                opacity: 1;
+                background: rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        .filter-box {
+            background: linear-gradient(135deg, #32A12E 0%, #FFD700 100%);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 1;
+        }
+
+        .filter-box > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .category-title {
+            color: #32A12E;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .items-count {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .custom-select {
+            border: 2px solid #32A12E;
+            border-radius: 25px;
+            padding: 8px 35px 8px 15px;
+            background-color: white;
+            color: #32A12E;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .custom-select:hover, .custom-select:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+        }
+
+        [dir="rtl"] .custom-select {
+            padding: 8px 15px 8px 35px;
+        }
+
+        @@media (max-width: 768px) {
+            .category-title {
+                font-size: 1.25rem;
+            }
         }
 
         .empty-state {
