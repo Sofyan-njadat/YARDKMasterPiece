@@ -53,4 +53,5 @@ YARDK is a digital platform designed to connect individuals and businesses who o
 -LINQ – For writing clean and efficient data queries within C#.
 
 -Figma – For UI/UX design and wireframing the platform.
+![image](https://github.com/user-attachments/assets/5400ec9e-9061-4646-9257-a47d536a28c0)
 
